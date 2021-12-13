@@ -1,0 +1,1863 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <atom:link href="https://zhihangliu2020.github.io/rss.xml" rel="self" type="application/rss+xml"/>
+    <title>ZhihangLiu</title>
+    <link>https://zhihangliu2020.github.io/</link>
+    <description>Record and Summary</description>
+    <language>en-US</language>
+    <pubDate>Mon, 13 Dec 2021 16:40:36 GMT</pubDate>
+    <lastBuildDate>Mon, 13 Dec 2021 16:40:36 GMT</lastBuildDate>
+    <generator>@mr-hope/vuepress-plugin-feed</generator>
+    <docs>https://validator.w3.org/feed/docs/rss2.html</docs>
+    <copyright>Copyright by zhl</copyright>
+    <category>book</category>
+    <category>practice</category>
+    <category>problem</category>
+    <category>project</category>
+    <category>tools</category>
+    <item>
+      <title>《密码编码学与网络安全》</title>
+      <link>https://zhihangliu2020.github.io/posts/book/network-security/</link>
+      <guid>https://zhihangliu2020.github.io/posts/book/network-security/</guid>
+      <source url="https://zhihangliu2020.github.io/rss.xml">《密码编码学与网络安全》</source>
+      <category>book</category>
+      <pubDate>Sun, 04 Jul 2021 00:00:00 GMT</pubDate>
+      <content:encoded><![CDATA[<h2 id="加密算法"> 加密算法</h2>
+<p>哈希算法：用来确保数据没有被篡改。</p>
+<p>密钥交换算法：用来确保密钥的交换，一般是使双方协商出用于加密报文内容的对称密钥。有DH，RSA等</p>
+<p>对称加密：加解密使用相同的密钥。</p>
+<p>非对称加密：有公钥和私钥之分，公钥公开，私钥只有自己知道。</p>
+<p>在实际应用中，对称加密和非对称加密是同时使用的：</p>
+<ul>
+<li>非对称加密用来保证双方安全的获得对称密钥</li>
+<li>对称加密用来加密数据</li>
+</ul>
+<p>签名：A使用自己的私钥加密一份数据，这个过程叫签名。因为只有A有自己的私钥，其他人只要用A的公钥对该数据进行解密，就可以知道此数据到底是不是A发送的，并且A也无法否认，因此叫签名。</p>
+<p>数字证书：这个东西是由认证机构（CA）颁发给服务器的，服务器可以用来证明身份的一份数据。它包括该服务器信息和CA的签名。</p>
+<p>需要知道的是，CA的公钥被提前内置在了操作系统和浏览器中，默认我们是信任操作系统的，也就信任其中内置的CA公钥。</p>
+<p>数字证书的工作原理：</p>
+<ol>
+<li>服务器S把自己的信息(包括自己的公钥)发给CA，CA对服务器S的所有信息使用哈希算法得到一个值hash_A，然后用自己的私钥对hash_A进行加密(签名)，最后把服务器S的信息和自己的签名放到一起，叫做数字证书。</li>
+<li>每当服务器S需要证明自己身份时，就把数字证书发给客户C，C从操作系统中取出CA的公钥，对数字证书上CA的签名进行解密得到了hash_A这个结果，然后用同样的哈希算法对数字证书上服务器S的信息进行计算，得到hash_B，对比两个hash值，就知道了服务器S到底是不是真的S。</li>
+<li>到此数字证书的作用就生效了。另外，操作系统中内置的往往是根CA，而给服务器S发证书的CA不一定是根CA，有可能是根CA信任的下一级CA，这就存在一个证书链。因此客户C验证S的证书时，实际上是先向CA确认给S颁发证书的CA的身份，然后再用该CA的公钥去验证服务器S的身份。信任是从上向下传递过去的。</li>
+</ol>
+<h2 id="tls协议"> TLS协议</h2>
+<p>TLS协议流程，图片来自公众号：小林coding</p>
+<p><img src="/imgs/image-20210727221654067.png" alt="image-20210727221654067" /></p>
+<p>首选3次握手建立TCP连接，然后是TLS4次握手协商出密钥，最后是发送http请求和接收响应。其中TLS握手阶段，协商密钥可以使用RSA算法，也可以使用DH算法。</p>
+<h2 id="_1-概览"> 1 概览</h2>
+<p>这本教材主要讲了四部分内容，分别为：</p>
+<ul>
+<li>密码算法
+<ul>
+<li>对称密码</li>
+<li>非对称密码</li>
+<li>hash函数和数字签名</li>
+</ul>
+</li>
+<li>相互信任
+<ul>
+<li>用户身份认证问题</li>
+<li>密钥分配和管理问题</li>
+</ul>
+</li>
+<li>网络安全
+<ul>
+<li>如何将密码算法用于网络协议和应用。</li>
+</ul>
+</li>
+<li>计算机安全
+<ul>
+<li>主要是恶意软件和网络入侵</li>
+</ul>
+</li>
+</ul>
+<p>1.1 计算机安全概念</p>
+<p>对称加密：可以加密任意大小的数据块。</p>
+<p>非对称加密：主要用于加密较小的数据块。比如用于给<code>加密密钥</code>加密。</p>
+<p>计算机安全五目标：</p>
+<ul>
+<li>保密性</li>
+<li>完整性</li>
+<li>可用性</li>
+<li>真实性</li>
+<li>可追溯性</li>
+</ul>
+<p>1.2 OSI安全框架</p>
+<p>国际电信联盟推荐方案X.800给出的OSI安全框架：</p>
+<ul>
+<li>安全攻击</li>
+<li>安全服务</li>
+<li>安全机制</li>
+</ul>
+<p>1.3 安全攻击</p>
+<p>1.3.1 被动攻击</p>
+<p>对传输进行窃听和检测。包括 信息内容泄漏 和 流量分析。</p>
+<p>1.3.2 主动攻击</p>
+<p>对消息流进行修改和伪造。包括伪装，重播，消息修改和拒绝服务。</p>
+<p>1.4 安全服务</p>
+<p>X.800定义：安全服务是由协议层提供的，分为5类14个服务：</p>
+<ul>
+<li>认证</li>
+<li>访问控制</li>
+<li>数据保密性</li>
+<li>数据完整性</li>
+<li>不可否认性</li>
+</ul>
+<p>1.5 安全机制</p>
+<p>X.800规定的安全机制分为两类，一类是在协议层实现的（TCP/应用层），另一类是不属于任何协议层的（加密）。</p>
+<ul>
+<li>加密</li>
+<li>数字签名</li>
+<li>访问控制</li>
+<li>数据完整性</li>
+<li>流量填充</li>
+<li>路由控制</li>
+<li>公证</li>
+<li>事件监测</li>
+<li>安全审计跟踪</li>
+<li>...</li>
+</ul>
+<h2 id="_2-传统加密技术"> 2 传统加密技术</h2>
+<p>2.1 对称密码模型</p>
+<p><code>Y=E(K,X)</code></p>
+<p><code>X=D(K,Y)</code></p>
+<p>使用要求：</p>
+<ul>
+<li>加密算法必须足够强</li>
+<li>密钥必须安全传输和保存</li>
+</ul>
+<p>2.1.1 密码编码学</p>
+<ul>
+<li>明-密转换运算类型。包括代替和置换（重新排列），是可逆运算，</li>
+<li>所用的密钥数。对称密码和非对称密码。</li>
+<li>处理明文的方法。</li>
+</ul>
+<p>2.1.2 密码分析学和穷举攻击</p>
+<ul>
+<li>唯密文攻击</li>
+<li>已知明文攻击</li>
+<li>选择明文攻击</li>
+<li>...</li>
+</ul>
+<p>2.2 代替技术</p>
+<ul>
+<li>Caesar密码</li>
+<li>单表代替密码</li>
+<li>Playfair密码</li>
+<li>Hill密码</li>
+<li>多表代替密码</li>
+<li>一次一密</li>
+</ul>
+<p>2.3 置换技术</p>
+<p>2.4 转轮机</p>
+<p>2.5 隐写术</p>
+<h2 id="_3-分组密码和数据加密标准"> 3 分组密码和数据加密标准</h2>
+<p>数据加密标准DES，高级加密标准AES</p>
+<h2 id="_4-数论和有限域"> 4 数论和有限域</h2>
+]]></content:encoded>
+      <enclosure url="https://zhihangliu2020.github.io/imgs/image-20210727221654067.png" type="image/png"/>
+    </item>
+    <item>
+      <title>Home</title>
+      <link>https://zhihangliu2020.github.io/intro/</link>
+      <guid>https://zhihangliu2020.github.io/intro/</guid>
+      <source url="https://zhihangliu2020.github.io/rss.xml">Home</source>
+      <pubDate>Sun, 08 Aug 2021 08:49:33 GMT</pubDate>
+      <content:encoded><![CDATA[<IntroCard />]]></content:encoded>
+    </item>
+    <item>
+      <title>Book List</title>
+      <link>https://zhihangliu2020.github.io/posts/book/</link>
+      <guid>https://zhihangliu2020.github.io/posts/book/</guid>
+      <source url="https://zhihangliu2020.github.io/rss.xml">Book List</source>
+      <pubDate>Sun, 08 Aug 2021 08:49:33 GMT</pubDate>
+      <content:encoded><![CDATA[<div><p><i>Not supported content</i></p>
+<p>&quot;Tell me and I forget. Show me and I remember. Involve me and I understand.&quot;</p>
+</div>
+]]></content:encoded>
+    </item>
+    <item>
+      <title>《计算机程序的构造和解释》</title>
+      <link>https://zhihangliu2020.github.io/posts/book/SICP/</link>
+      <guid>https://zhihangliu2020.github.io/posts/book/SICP/</guid>
+      <source url="https://zhihangliu2020.github.io/rss.xml">《计算机程序的构造和解释》</source>
+      <category>book</category>
+      <pubDate>Tue, 06 Jul 2021 00:00:00 GMT</pubDate>
+      <content:encoded><![CDATA[<h2 id="mit的视频课程"> MIT的视频课程</h2>
+<p>https://www.bilibili.com/video/av8515129/</p>
+<blockquote>
+<p>Its very easy to confuse the essence of what you're doing with the tools that you use.</p>
+<p>computer science is like an abstract form of engineering.</p>
+</blockquote>
+<p>三大主题</p>
+<ol>
+<li>
+<p>black-box abstraction ，把一些规则封装成一个黑盒。一是为了隐藏细节以便抽身去组合更大的东西，二是方便他人使用。</p>
+</li>
+<li>
+<p>conventional interfaces 约定接口，以便构建通用的系统</p>
+</li>
+<li>
+<p>metalinguistic abstraction，元语言抽象</p>
+</li>
+</ol>
+]]></content:encoded>
+    </item>
+    <item>
+      <title>《深入理解计算机系统》</title>
+      <link>https://zhihangliu2020.github.io/posts/book/os/</link>
+      <guid>https://zhihangliu2020.github.io/posts/book/os/</guid>
+      <source url="https://zhihangliu2020.github.io/rss.xml">《深入理解计算机系统》</source>
+      <category>book</category>
+      <pubDate>Mon, 05 Jul 2021 00:00:00 GMT</pubDate>
+      <content:encoded><![CDATA[<h2 id="bits-bytes-integers"> Bits, Bytes, Integers</h2>
+<blockquote>
+<p>每章读三遍，然后做练习题。</p>
+</blockquote>
+<blockquote>
+<p>用有限的位模拟无限位的数学运算，不可避免的会出现溢出。</p>
+</blockquote>
+<div><pre><code><span>(</span>base<span>)</span> lzh@lzhdeAir bin % lldb
+<span># int</span>
+<span>(</span>lldb<span>)</span> print <span>4000</span>*4000
+<span>(</span>int<span>)</span> <span>$0</span> <span>=</span> <span>16000000</span>
+<span>(</span>lldb<span>)</span> print <span>50000</span>*50000
+<span>(</span>int<span>)</span> <span>$1</span> <span>=</span> -1794967296
+<span># float</span>
+<span>(</span>lldb<span>)</span> print 1e20+<span>(</span>-1e20+3.14<span>)</span>
+<span>(</span>double<span>)</span> <span>$2</span> <span>=</span> <span>0</span>
+<span>(</span>lldb<span>)</span> print 1e20 + -1e20+3.14
+<span>(</span>double<span>)</span> <span>$3</span> <span>=</span> <span>3.1400000000000001</span>
+</code></pre>
+<div><span>1</span><br><span>2</span><br><span>3</span><br><span>4</span><br><span>5</span><br><span>6</span><br><span>7</span><br><span>8</span><br><span>9</span><br><span>10</span><br><span>11</span><br></div></div><blockquote>
+<p>C语言不会进行边界检查，所以很容易越界。</p>
+</blockquote>
+<div><pre><code><span>typedef</span> <span>struct</span> <span>{</span>
+  <span>int</span> a<span>[</span><span>2</span><span>]</span><span>;</span>
+  <span>double</span> d<span>;</span>
+<span>}</span><span>struct_t</span><span>;</span>
+
+<span>double</span> <span>fun</span><span>(</span><span>int</span> i<span>)</span><span>{</span>
+  <span>volatile</span> <span>struct_t</span> s<span>;</span>
+  s<span>.</span>d <span>=</span> <span>3.14</span><span>;</span>
+  s<span>.</span>a<span>[</span>i<span>]</span> <span>=</span> <span>1073741824</span><span>;</span> <span>/* 可能越界 */</span>
+  <span>return</span> s<span>.</span>d<span>;</span>
+<span>}</span>
+
+<span>fun</span><span>(</span><span>0</span><span>)</span> <span>=</span><span>></span> <span>3.14</span>
+<span>fun</span><span>(</span><span>1</span><span>)</span> <span>=</span><span>></span> <span>3.14</span>
+<span>fun</span><span>(</span><span>2</span><span>)</span> <span>=</span><span>></span> <span>3.13999986</span><span>.</span><span>.</span>
+<span>fun</span><span>(</span><span>3</span><span>)</span> <span>=</span><span>></span> <span>2.0000000</span><span>.</span><span>.</span>
+<span>fun</span><span>(</span><span>4</span><span>)</span> <span>=</span><span>></span> <span>3.14</span>
+<span>fun</span><span>(</span><span>6</span><span>)</span> <span>=</span><span>></span> segmentation fault
+<span>|</span><span>--</span><span>--</span><span>--</span><span>--</span>
+<span>|</span>critical state
+<span>|</span><span>--</span><span>--</span><span>--</span><span>--</span> 
+<span>|</span>d7d6d5d3
+<span>|</span><span>--</span><span>--</span><span>--</span><span>--</span>
+<span>|</span>d3d2d1d0
+<span>|</span><span>--</span><span>--</span><span>--</span><span>--</span>        <span>fun</span><span>(</span>i<span>)</span>可以到达的内存单元
+<span>|</span>a<span>[</span><span>1</span><span>]</span>
+<span>|</span><span>--</span><span>--</span><span>--</span><span>--</span>        <span>struct_t</span> 占用<span>4</span>个内存单元
+<span>|</span>a<span>[</span><span>0</span><span>]</span>
+<span>|</span><span>--</span><span>--</span><span>--</span><span>--</span>
+</code></pre>
+<div><span>1</span><br><span>2</span><br><span>3</span><br><span>4</span><br><span>5</span><br><span>6</span><br><span>7</span><br><span>8</span><br><span>9</span><br><span>10</span><br><span>11</span><br><span>12</span><br><span>13</span><br><span>14</span><br><span>15</span><br><span>16</span><br><span>17</span><br><span>18</span><br><span>19</span><br><span>20</span><br><span>21</span><br><span>22</span><br><span>23</span><br><span>24</span><br><span>25</span><br><span>26</span><br><span>27</span><br><span>28</span><br><span>29</span><br></div></div><blockquote>
+<p>内存的访问顺序，会影响程序的性能。这个缓存机制有关，</p>
+</blockquote>
+<div><pre><code><span>// 外行内列 耗时4.3ms</span>
+<span>void</span> <span>copyij</span><span>(</span><span>int</span> src<span>[</span><span>2048</span><span>]</span><span>[</span><span>2048</span><span>]</span><span>,</span> <span>int</span> dst<span>[</span><span>2048</span><span>]</span><span>[</span><span>2048</span><span>]</span><span>)</span><span>{</span>
+  <span>int</span> i<span>,</span>j<span>;</span>
+  <span>for</span><span>(</span>i<span>=</span><span>0</span><span>;</span>i<span>&lt;</span><span>2048</span><span>;</span>i<span>++</span><span>)</span><span>{</span>
+    <span>for</span><span>(</span>j<span>=</span><span>0</span><span>;</span>j<span>&lt;</span><span>2048</span><span>;</span>j<span>++</span><span>)</span><span>{</span>
+      dst<span>[</span>i<span>]</span><span>[</span>j<span>]</span><span>=</span>src<span>[</span>i<span>]</span><span>[</span>j<span>]</span><span>;</span>
+    <span>}</span>
+  <span>}</span>
+<span>}</span>
+<span>// 外列内行 耗时81.8ms</span>
+<span>void</span> <span>copyji</span><span>(</span><span>int</span> src<span>[</span><span>2048</span><span>]</span><span>[</span><span>2048</span><span>]</span><span>,</span> <span>int</span> dst<span>[</span><span>2048</span><span>]</span><span>[</span><span>2048</span><span>]</span><span>)</span><span>{</span>
+  <span>int</span> i<span>,</span>j<span>;</span>
+  <span>for</span><span>(</span>j<span>=</span><span>0</span><span>;</span>j<span>&lt;</span><span>2048</span><span>;</span>j<span>++</span><span>)</span><span>{</span>
+    <span>for</span><span>(</span>i<span>=</span><span>0</span><span>;</span>i<span>&lt;</span><span>2048</span><span>;</span>i<span>++</span><span>)</span><span>{</span>
+      dst<span>[</span>i<span>]</span><span>[</span>j<span>]</span><span>=</span>src<span>[</span>i<span>]</span><span>[</span>j<span>]</span><span>;</span>
+    <span>}</span>
+  <span>}</span>
+<span>}</span>
+
+</code></pre>
+<div><span>1</span><br><span>2</span><br><span>3</span><br><span>4</span><br><span>5</span><br><span>6</span><br><span>7</span><br><span>8</span><br><span>9</span><br><span>10</span><br><span>11</span><br><span>12</span><br><span>13</span><br><span>14</span><br><span>15</span><br><span>16</span><br><span>17</span><br><span>18</span><br><span>19</span><br></div></div><h2 id="位运算"> 位运算</h2>
+<p>逻辑：</p>
+<p>​	A&amp;B 与</p>
+<p>​	A|B 或</p>
+<p>​	~A 非</p>
+<p>​	A^B 异或</p>
+<p>移位：</p>
+<p>​	&lt;&lt; 左移，低位补0</p>
+<p>​	&gt;&gt; 逻辑右移，高位补0</p>
+<p>​	&gt;&gt; 算术右移，高位补和符号为一致的数</p>
+]]></content:encoded>
+    </item>
+    <item>
+      <title>《TCP/IP详解卷一》</title>
+      <link>https://zhihangliu2020.github.io/posts/book/tcp-ip/</link>
+      <guid>https://zhihangliu2020.github.io/posts/book/tcp-ip/</guid>
+      <source url="https://zhihangliu2020.github.io/rss.xml">《TCP/IP详解卷一》</source>
+      <category>book</category>
+      <pubDate>Fri, 02 Apr 2021 00:00:00 GMT</pubDate>
+      <content:encoded><![CDATA[<h2 id="第一章-概述"> 第一章 概述</h2>
+<ul>
+<li>
+<p>应用程序（应用层）通常是一个用户进程，而下三层（运输层、网络层、链路层）一般在操作系统内核中执行。</p>
+</li>
+<li>
+<p>连接两个网络，可以使用路由器在网络层互连，也可以使用网桥在链路层互连。</p>
+<img src="/imgs/截屏2021-04-13 下午11.05.57.png" alt="截屏2021-04-13 下午11.05.57" style="zoom:50%;" />
+</li>
+<li>
+<p>5类IP地址范围：</p>
+<img src="/imgs/截屏2021-04-13 下午11.10.17.png" alt="截屏2021-04-13 下午11.10.17" style="zoom:50%;" />
+<img src="/imgs/截屏2021-04-13 下午11.10.35.png" alt="截屏2021-04-13 下午11.10.35" style="zoom:50%;" />
+</li>
+<li>
+<p>TCP和UDP都在首部中用一个16bit的端口号来标识应用程序。</p>
+<p>IP为了标识上层协议，在首部中用8bit的数值来标识。1为ICPMP，6为TCP，17为UDP。</p>
+<p>以太网帧在首部用16bit来标识网络层的协议。（IP、ARP、RARP）</p>
+</li>
+<li>
+<p>分用：目的主机收到以太网帧时，层层上交给对应的上层协议，这个过程叫分用。<img src="/imgs/截屏2021-04-13 下午11.28.23.png" alt="截屏2021-04-13 下午11.28.23" style="zoom:50%;" /></p>
+</li>
+<li>
+<p>CS模型分为两种：一般TCP服务器是并发的，UDP服务器是重复的</p>
+<ul>
+<li>重复型<img src="/imgs/截屏2021-04-13 下午11.30.55.png" alt="截屏2021-04-13 下午11.30.55" style="zoom:50%;" /></li>
+<li>并发型<img src="/imgs/截屏2021-04-13 下午11.31.22.png" alt="截屏2021-04-13 下午11.31.22" style="zoom:50%;" /></li>
+</ul>
+</li>
+</ul>
+<h2 id="第二章-链路层"> 第二章 链路层</h2>
+<ul>
+<li>
+<p>链路层主要3个目的：</p>
+<ul>
+<li>为IP模块发送和接收</li>
+<li>为ARP模块发送和应答</li>
+<li>为RARP模块发送和应答</li>
+</ul>
+</li>
+<li>
+<p>以太网就是局域网技术，采用CSMA/CD接入方法，速率为10MB/s，地址为48bit（mac地址），以太网封装格式：<img src="/imgs/截屏2021-04-13 下午11.48.52.png" alt="截屏2021-04-13 下午11.48.52" style="zoom:50%;" /></p>
+</li>
+<li>
+<p>PPP协议：经常用于低速的串行链路。</p>
+<img src="/imgs/截屏2021-04-13 下午11.55.11.png" alt="截屏2021-04-13 下午11.55.11" style="zoom:50%;" />
+</li>
+<li>
+<p>路径MTU：当两个不同网络中的主机之间通信时，两台主机路径的最小MTU叫做路径MTU，并且两个方向上的路径MTU可能不同。</p>
+</li>
+</ul>
+<h2 id="第三章-ip-网际协议"> 第三章 IP：网际协议</h2>
+<ul>
+<li>
+<p>如果IP数据包在中途被丢弃了，会发送ICMP消息给信源端。</p>
+<p>IP首部：最高位在左边0bit，最低位在右边，记为31bit。</p>
+<img src="/imgs/截屏2021-04-14 上午12.16.41.png" alt="截屏2021-04-14 上午12.16.41" style="zoom:50%;" />
+<p>**大端字节序：**传输的时候顺序为：0-7，8-15，16-23，24-31.</p>
+<p>TCP/IP首部中所有的二进制整数在网络中传输都用大端字节序，因此又叫网络字节序。以小端格式存储二进制整数的机器，在传输前要先把首部转换成网络字节序。</p>
+<p>**首部长度：**以32bit（4字节）为单位，因此首部最长60字节。普通IP数据报这个字段的值为5.</p>
+<p>**服务类型：**其中有4bit位决定服务类型，分别代表最小时延、最大吞吐量、最高可靠性、最小费用，且同时只能有1位置位1.一般数据报4位全0.</p>
+<img src="/imgs/截屏2021-04-14 上午12.27.34.png" alt="截屏2021-04-14 上午12.27.34" style="zoom:50%;" />
+<p>标识：该字段唯一的标识主机发送的每一份数据报，每发送一份就加1.</p>
+<p>TTL：初始值由源主机设置（32或64），一旦经过一个路由器，就减1，当该字段为0时，被丢弃并且发送ICMP消息给源端。</p>
+<p>首部检验和：根据IP首部计算的检验和码，不包括数据部分。与之不同的是，ICMP，TCP，UDP的检验和都包括对数据部分的计算。</p>
+</li>
+<li>
+<p>当今大多数的主机，既可以配置成主机，也可以配置成路由器。本质区别是，主机从不把数据报从一个接口转发到另一个接口。</p>
+</li>
+<li>
+<p>IP层的路由表存在内存中，收到一份数据报时，如果目的IP是本机或者广播，那就送到上层，否则：1）如果IP层被设置为路由器的功能，就转发；2）如果没有设置成路由器，就丢弃。</p>
+</li>
+<li>
+<p>IP路由选择算法：</p>
+</li>
+</ul>
+<img src="/imgs/截屏2021-04-14 上午12.43.02.png" alt="截屏2021-04-14 上午12.43.02" style="zoom:50%;" />
+<h2 id="第四章-arp"> 第四章 ARP</h2>
+<ul>
+<li>
+<p>点对点链路不使用ARP，设置这种链路时，必须告知内核，链路每一端的IP地址，并且不涉及mac地址。</p>
+</li>
+<li>
+<p>ARP请求/应答分组格式：</p>
+<img src="/imgs/截屏2021-04-14 上午12.59.39.png" alt="截屏2021-04-14 上午12.59.39" style="zoom:50%;" />
+</li>
+</ul>
+<h2 id="第五章-rarp"> 第五章 RARP</h2>
+<ul>
+<li>ARP是完成IP到MAC的转换，RARP是完成MAC到IP的转换。</li>
+</ul>
+<h2 id="第六章-icmp-internet控制报文协议"> 第六章 ICMP：Internet控制报文协议</h2>
+<ul>
+<li>
+<p>ICMP报文封装在IP数据报内部</p>
+<img src="/imgs/截屏2021-04-14 上午10.08.15.png" alt="截屏2021-04-14 上午10.08.15" style="zoom:50%;" />
+</li>
+<li>
+<p>所有ICMP报文的前4个字节都是3个字段，后面的内容根据类型和代码的不同而不同</p>
+<img src="/imgs/截屏2021-04-14 上午10.12.33.png" alt="截屏2021-04-14 上午10.12.33" style="zoom:50%;" />
+</li>
+<li>
+<p>下面情况不会导致ICMP差错报文产生：</p>
+<ul>
+<li>ICMP差错报文（ICMP查询报文可能会产生ICMP差错报文）</li>
+<li>目的地址是广播或多播的IP数据报</li>
+<li>作为链路层广播的数据报</li>
+<li>不是IP分片的第一片</li>
+<li>源地址不是单个主机的数据报。即源地址不能是零地址，环回地址，广播或多播地址。</li>
+</ul>
+</li>
+</ul>
+<h2 id="第七章-ping程序"> 第七章 Ping程序</h2>
+<ul>
+<li>
+<p>PIng其实就是发送ICMP回显请求报文，返回ICMP回显应答报文。它不经过传输层，ping服务器一般在内核中实现ICMP的功能。</p>
+<img src="/imgs/截屏2021-04-14 上午10.28.03.png" alt="截屏2021-04-14 上午10.28.03" style="zoom:50%;" />
+</li>
+</ul>
+<h2 id="第八章-traceroute程序"> 第八章 traceroute程序</h2>
+<ul>
+<li>traceroute程序可以显示IP数据报从一台主机到另一台主机所经过的路由。</li>
+<li>traceroute使用UDP，选择一个不可能的值作为UDP目的端口号，使目的主机产生一份端口不可达错误的ICMP报文，从而知道已经到达了目的主机，traceroute程序停止。若收到的是ICMP超时报文，说明还没到达目的主机，继续增加TTL并发送。</li>
+<li>traceroute操作过程：
+<ul>
+<li>发送TTL=1的IP数据报给目的主机，处理该数据报的第一个路由器将TTL减1，丢弃，并发回一份超时ICMP报文，这样就得到了第一个路由器的地址</li>
+<li>发送TTL=2的IP数据报，得到第二个路由器的地址</li>
+<li>继续这个过程，直到该数据报到达目的主机</li>
+</ul>
+</li>
+<li>traceroute对于每个TTL都发送3份数据报，每收到一个回答就打印往返时间，没收到就打印一个*。</li>
+</ul>
+<h2 id="第九章-ip选路-单个系统"> 第九章 IP选路（单个系统）</h2>
+<ul>
+<li>netstat -rn 查看路由表</li>
+<li>路由表flag字段含义：<img src="/imgs/截屏2021-04-14 上午11.44.06.png" alt="截屏2021-04-14 上午11.44.06" style="zoom:50%;" /></li>
+<li>
+<img src="/imgs/截屏2021-04-14 上午11.50.25.png" alt="截屏2021-04-14 上午11.50.25" style="zoom:50%;" />
+</li>
+</ul>
+<h2 id="第十章-动态选路协议-路由器之间"> 第十章 动态选路协议（路由器之间）</h2>
+<ul>
+<li>
+<p>路由器中有一个守护进程，运行选路协议，与相邻的路由器进行通信。</p>
+</li>
+<li>
+<p>IGP(Interior Gateway Protocol)：内部网关协议</p>
+<ul>
+<li>RIP</li>
+<li>OSPF</li>
+</ul>
+</li>
+<li>
+<p>EGP(Exterior Gateway Protocol)：外部网关协议</p>
+<ul>
+<li>BGP</li>
+</ul>
+</li>
+<li>
+<p>RIP报文封装在UDP中：</p>
+<img src="/imgs/截屏2021-04-19 下午11.25.19.png" alt="截屏2021-04-19 下午11.25.19" style="zoom:50%;" />
+</li>
+</ul>
+<h2 id="第十一章-udp-用户数据报协议"> 第十一章 UDP：用户数据报协议</h2>
+<ul>
+<li>
+<p>UDP数据报格式：</p>
+<img src="/imgs/截屏2021-04-19 下午11.30.53.png" alt="截屏2021-04-19 下午11.30.53" style="zoom:50%;" />
+<img src="/imgs/截屏2021-04-19 下午11.31.08.png" alt="截屏2021-04-19 下午11.31.08" style="zoom:50%;" />
+</li>
+<li>
+<p>TCP端口号和UDP端口号是独立的，因为IP层根据协议字段已经把数据报上交给了正确的协议。如果使用TCP和UDP同时提供某种知名服务，两种协议通常选择相同的端口号。</p>
+</li>
+<li>
+<p>UDP的检验和是可选的，TCP是必须的。</p>
+</li>
+<li>
+<p>IP分片：由于以太网MTU的限制，需要把IP数据报分片</p>
+<ul>
+<li>理论上IP数据报最大长度为65535字节</li>
+<li>把一份IP数据报分片后，只有到达目的地才进行重新组装。</li>
+</ul>
+</li>
+</ul>
+<h2 id="第十二章-广播和多播"> 第十二章 广播和多播</h2>
+<ul>
+<li>广播和多播仅应用于UDP</li>
+</ul>
+]]></content:encoded>
+    </item>
+    <item>
+      <title>代码练习-20210803</title>
+      <link>https://zhihangliu2020.github.io/posts/prac/20210803/</link>
+      <guid>https://zhihangliu2020.github.io/posts/prac/20210803/</guid>
+      <source url="https://zhihangliu2020.github.io/rss.xml">代码练习-20210803</source>
+      <category>practice</category>
+      <pubDate>Tue, 03 Aug 2021 00:00:00 GMT</pubDate>
+    </item>
+    <item>
+      <title>Problem List</title>
+      <link>https://zhihangliu2020.github.io/posts/prob/</link>
+      <guid>https://zhihangliu2020.github.io/posts/prob/</guid>
+      <source url="https://zhihangliu2020.github.io/rss.xml">Problem List</source>
+      <pubDate>Sun, 08 Aug 2021 08:49:33 GMT</pubDate>
+      <content:encoded><![CDATA[<div><p>Bug</p>
+<p>记录日常开发中遇到的问题 &amp; bug</p>
+</div>
+]]></content:encoded>
+    </item>
+    <item>
+      <title>代码练习-20210802</title>
+      <link>https://zhihangliu2020.github.io/posts/prac/20210802/</link>
+      <guid>https://zhihangliu2020.github.io/posts/prac/20210802/</guid>
+      <source url="https://zhihangliu2020.github.io/rss.xml">代码练习-20210802</source>
+      <category>practice</category>
+      <pubDate>Mon, 02 Aug 2021 00:00:00 GMT</pubDate>
+      <content:encoded><![CDATA[<div><pre><code><span>// 延迟装饰器</span>
+<span>function</span> <span>delay</span><span>(</span><span>f<span>,</span> ms</span><span>)</span><span>{</span>
+  <span>setTimeout</span><span>(</span><span>(</span><span>)</span><span>=></span><span>f</span><span>.</span><span>apply</span><span>(</span><span>this</span><span>,</span> arguments<span>)</span><span>,</span> ms<span>)</span><span>;</span>
+<span>}</span>
+
+<span>// 防抖装饰器</span>
+<span>function</span> <span>debounce</span><span>(</span><span>f<span>,</span> ms</span><span>)</span><span>{</span>
+  <span>let</span> timer<span>;</span>
+  <span>return</span> <span>function</span><span>(</span><span>)</span><span>{</span>
+    <span>clearTimeout</span><span>(</span>timer<span>)</span><span>;</span>
+    timer <span>=</span> <span>setTimeout</span><span>(</span><span>(</span><span>)</span><span>=></span><span>{</span>
+      <span>return</span> <span>f</span><span>.</span><span>apply</span><span>(</span><span>this</span><span>,</span> arguments<span>)</span><span>;</span>
+    <span>}</span><span>,</span> ms<span>)</span><span>;</span>
+  <span>}</span>
+<span>}</span>
+
+<span>// 节流装饰器</span>
+<span>function</span> <span>throttle</span><span>(</span><span>f<span>,</span> ms</span><span>)</span><span>{</span>
+  <span>let</span> timer<span>=</span><span>null</span><span>;</span>
+  <span>let</span> that<span>=</span><span>this</span><span>;</span>
+  <span>let</span> arg<span>=</span>arguments<span>;</span>
+  <span>return</span> <span>function</span><span>(</span><span>)</span><span>{</span>
+    <span>if</span><span>(</span><span>!</span>timer<span>)</span><span>{</span>
+      timer <span>=</span> <span>setTimeout</span><span>(</span><span>function</span><span>(</span><span>)</span><span>{</span>
+        <span>f</span><span>.</span><span>apply</span><span>(</span>that<span>,</span>arg<span>)</span><span>;</span>
+        timer<span>=</span><span>null</span><span>;</span> <span>// 执行完以后要把开关打开</span>
+      <span>}</span><span>,</span> ms<span>)</span><span>;</span>
+    <span>}</span>
+  <span>}</span>
+<span>}</span>
+
+<span>// ajax</span>
+<span>function</span> <span>success</span><span>(</span><span>data</span><span>)</span><span>{</span>
+  console<span>.</span><span>log</span><span>(</span>data<span>)</span><span>;</span>
+<span>}</span>
+<span>function</span> <span>fail</span><span>(</span><span>error</span><span>)</span><span>{</span>
+  console<span>.</span><span>log</span><span>(</span>error<span>)</span><span>;</span>
+<span>}</span>
+<span>function</span> <span>request</span><span>(</span><span>url<span>,</span> method</span><span>)</span><span>{</span>
+  <span>let</span> xhr <span>=</span> <span>new</span> <span>XMLHttpRequest</span><span>(</span><span>)</span><span>;</span>
+  xhr<span>.</span><span>onreadystatechange</span> <span>=</span> <span>(</span><span>)</span><span>=></span><span>{</span>
+    <span>if</span><span>(</span>xhr<span>.</span>readyState <span>===</span> <span>4</span><span>)</span><span>{</span>
+      <span>if</span><span>(</span>xhr<span>.</span>status <span>===</span> <span>200</span><span>)</span><span>{</span>
+        <span>success</span><span>(</span>xhr<span>.</span>responseText<span>)</span><span>;</span>
+      <span>}</span><span>else</span><span>{</span>
+        <span>fail</span><span>(</span>xhr<span>.</span>status<span>)</span>
+      <span>}</span>
+    <span>}</span>
+  <span>}</span>
+  xhr<span>.</span><span>open</span><span>(</span>method<span>,</span>url<span>,</span><span>true</span><span>)</span><span>;</span>
+  xhr<span>.</span><span>send</span><span>(</span><span>)</span><span>;</span>
+<span>}</span>
+
+<span>// promise封装的ajax</span>
+<span>function</span> <span>request</span><span>(</span><span>url<span>,</span>method</span><span>)</span><span>{</span>
+  <span>return</span> <span>new</span> <span>Promise</span><span>(</span><span>(</span><span>resolve<span>,</span>reject</span><span>)</span><span>=></span><span>{</span>
+    <span>let</span> xhr<span>=</span><span>new</span> <span>XMLHttpRequest</span><span>(</span><span>)</span><span>;</span>
+    xhr<span>.</span><span>onreadystatechange</span> <span>=</span> <span>(</span><span>)</span><span>=></span><span>{</span>
+      <span>if</span><span>(</span>xhr<span>.</span>readyState <span>===</span> <span>4</span> <span>&amp;&amp;</span> xhr<span>.</span>status <span>===</span> <span>200</span><span>)</span><span>{</span>
+        <span>resolve</span><span>(</span>xhr<span>.</span>responseText<span>)</span><span>;</span>
+      <span>}</span><span>else</span><span>{</span>
+        <span>reject</span><span>(</span>xhr<span>.</span>status<span>)</span><span>;</span>
+      <span>}</span>
+    <span>}</span>
+    xhr<span>.</span><span>open</span><span>(</span>method<span>,</span>url<span>,</span><span>true</span><span>)</span><span>;</span>
+    xhr<span>.</span><span>send</span><span>(</span><span>)</span><span>;</span>
+  <span>}</span><span>)</span>
+<span>}</span>
+
+<span>// axios</span>
+<span>// 通用接口</span>
+<span>axios</span><span>(</span><span>{</span>
+  url<span>:</span> <span>'api'</span><span>,</span>
+  method<span>:</span> <span>'post'</span><span>,</span>
+  headers<span>:</span> <span>{</span>
+    <span>'Accept'</span><span>:</span> <span>'application/json'</span><span>,</span>
+    <span>'Content-type'</span><span>:</span> <span>'application/json'</span>
+  <span>}</span><span>,</span>
+  data<span>:</span> <span>{</span>
+    name<span>:</span> <span>'lzh'</span><span>,</span>
+    pwd<span>:</span> <span>'123'</span>
+  <span>}</span>
+<span>}</span><span>)</span><span>.</span><span>then</span><span>(</span><span>res</span><span>=></span><span>{</span><span>...</span><span>}</span><span>)</span>
+<span>// get接口</span>
+axios<span>.</span><span>get</span><span>(</span>url<span>)</span><span>.</span><span>then</span><span>(</span><span>res</span><span>=></span><span>{</span><span>...</span><span>}</span><span>)</span><span>;</span>
+<span>// post接口</span>
+axios<span>.</span><span>post</span><span>(</span>url<span>,</span> data<span>)</span><span>.</span><span>then</span><span>(</span><span>res</span><span>=></span><span>{</span><span>...</span><span>}</span><span>)</span><span>;</span>
+
+<span>// 封装的axios</span>
+<span>// request.js</span>
+<span>const</span> request <span>=</span> axios<span>.</span><span>create</span><span>(</span><span>)</span><span>;</span>
+request<span>.</span>interceptors<span>.</span>request<span>.</span><span>use</span><span>(</span><span>config</span><span>=></span><span>{</span><span>}</span><span>,</span> <span>error</span><span>=></span><span>{</span><span>}</span><span>)</span><span>;</span>
+request<span>.</span>interceptors<span>.</span>response<span>.</span><span>use</span><span>(</span><span>response</span><span>=></span><span>{</span><span>}</span><span>,</span> <span>error</span><span>=></span><span>{</span><span>}</span><span>)</span><span>;</span>
+<span>export</span> <span>default</span> request
+<span>// 某api.js</span>
+<span>import</span> request <span>from</span> <span>'request.js'</span>
+<span>export</span> <span>function</span> <span>getSomething</span><span>(</span><span>)</span><span>{</span>
+  <span>return</span> <span>request</span><span>(</span><span>{</span>
+    url<span>:</span> <span>'api'</span><span>,</span>
+    method<span>:</span> <span>'get'</span><span>,</span>
+    data<span>,</span>
+  <span>}</span><span>)</span>
+<span>}</span>
+</code></pre>
+<div><span>1</span><br><span>2</span><br><span>3</span><br><span>4</span><br><span>5</span><br><span>6</span><br><span>7</span><br><span>8</span><br><span>9</span><br><span>10</span><br><span>11</span><br><span>12</span><br><span>13</span><br><span>14</span><br><span>15</span><br><span>16</span><br><span>17</span><br><span>18</span><br><span>19</span><br><span>20</span><br><span>21</span><br><span>22</span><br><span>23</span><br><span>24</span><br><span>25</span><br><span>26</span><br><span>27</span><br><span>28</span><br><span>29</span><br><span>30</span><br><span>31</span><br><span>32</span><br><span>33</span><br><span>34</span><br><span>35</span><br><span>36</span><br><span>37</span><br><span>38</span><br><span>39</span><br><span>40</span><br><span>41</span><br><span>42</span><br><span>43</span><br><span>44</span><br><span>45</span><br><span>46</span><br><span>47</span><br><span>48</span><br><span>49</span><br><span>50</span><br><span>51</span><br><span>52</span><br><span>53</span><br><span>54</span><br><span>55</span><br><span>56</span><br><span>57</span><br><span>58</span><br><span>59</span><br><span>60</span><br><span>61</span><br><span>62</span><br><span>63</span><br><span>64</span><br><span>65</span><br><span>66</span><br><span>67</span><br><span>68</span><br><span>69</span><br><span>70</span><br><span>71</span><br><span>72</span><br><span>73</span><br><span>74</span><br><span>75</span><br><span>76</span><br><span>77</span><br><span>78</span><br><span>79</span><br><span>80</span><br><span>81</span><br><span>82</span><br><span>83</span><br><span>84</span><br><span>85</span><br><span>86</span><br><span>87</span><br><span>88</span><br><span>89</span><br><span>90</span><br><span>91</span><br><span>92</span><br><span>93</span><br><span>94</span><br><span>95</span><br><span>96</span><br><span>97</span><br><span>98</span><br><span>99</span><br><span>100</span><br><span>101</span><br><span>102</span><br><span>103</span><br></div></div>]]></content:encoded>
+    </item>
+    <item>
+      <title>Electron 渲染进程报错 require is not defined</title>
+      <link>https://zhihangliu2020.github.io/posts/prob/electron/</link>
+      <guid>https://zhihangliu2020.github.io/posts/prob/electron/</guid>
+      <source url="https://zhihangliu2020.github.io/rss.xml">Electron 渲染进程报错 require is not defined</source>
+      <category>problem</category>
+      <pubDate>Thu, 03 Jun 2021 00:00:00 GMT</pubDate>
+      <content:encoded><![CDATA[<h2 id="electron渲染进程错误"> electron渲染进程错误</h2>
+<div><pre><code><span>{</span>
+    webPreferences<span>:</span> <span>{</span>
+      <span>// 解决electron渲染进程错误: require is not defined,加上下面两句</span>
+      nodeIntegration<span>:</span> <span>true</span><span>,</span>
+      contextIsolation<span>:</span> <span>false</span><span>,</span>
+    <span>}</span>
+<span>}</span>
+</code></pre>
+<div><span>1</span><br><span>2</span><br><span>3</span><br><span>4</span><br><span>5</span><br><span>6</span><br><span>7</span><br></div></div>]]></content:encoded>
+    </item>
+    <item>
+      <title>Practice Arena</title>
+      <link>https://zhihangliu2020.github.io/posts/prac/</link>
+      <guid>https://zhihangliu2020.github.io/posts/prac/</guid>
+      <source url="https://zhihangliu2020.github.io/rss.xml">Practice Arena</source>
+      <pubDate>Tue, 10 Aug 2021 13:57:42 GMT</pubDate>
+      <content:encoded><![CDATA[<div><p>Code</p>
+<p>代码练习</p>
+</div>
+]]></content:encoded>
+    </item>
+    <item>
+      <title>vue-router duplicate named routes definition 报错</title>
+      <link>https://zhihangliu2020.github.io/posts/prob/vue-router/</link>
+      <guid>https://zhihangliu2020.github.io/posts/prob/vue-router/</guid>
+      <source url="https://zhihangliu2020.github.io/rss.xml">vue-router duplicate named routes definition 报错</source>
+      <category>problem</category>
+      <pubDate>Sat, 10 Jul 2021 00:00:00 GMT</pubDate>
+      <content:encoded><![CDATA[<h2 id="vue-router-获取动态路由"> vue-router 获取动态路由</h2>
+<p>路由权限管理有两种方式</p>
+<ol>
+<li>路由信息直接写好，然后使用路由守卫在每次跳转时验证是否有权限进入。</li>
+<li>使用router.addRoutes()动态生成路由信息
+之前在B站看一个讲解的视频，按照视频写下来虽然能实现，但是产生 duplicate named routes definition 报错，探究了一下原因，发现是在路由守卫中调用了addRroutes()，导致每次跳转都会在路由数组中重新添加一遍路由信息</li>
+</ol>
+<div><pre><code><span>// 产生报错信息的代码</span>
+
+<span>const</span> routes <span>=</span> <span>[</span><span>]</span>
+<span>// 根据复用的数据动态生成路由</span>
+<span>const</span> router <span>=</span> <span>new</span> <span>Router</span><span>(</span><span>{</span>
+  routes<span>,</span>
+<span>}</span><span>)</span>
+<span>//路由拦截</span>
+router<span>.</span><span>beforeEach</span><span>(</span><span>(</span><span>to<span>,</span>from<span>,</span>next</span><span>)</span> <span>=></span> <span>{</span>
+  <span>// 动态生成路由数据</span>
+  <span>addRoute</span><span>(</span><span>)</span>
+  <span>next</span><span>(</span><span>)</span>
+<span>}</span><span>)</span>
+<span>// 动态生成路由数据</span>
+<span>function</span> <span>addRoute</span><span>(</span><span>)</span><span>{</span>
+  <span>// 请求数据</span>
+  <span>getNav</span><span>(</span><span>)</span><span>.</span><span>then</span><span>(</span><span>res</span><span>=></span><span>{</span>
+    console<span>.</span><span>log</span><span>(</span><span>"请求导航栏1："</span><span>,</span>res<span>)</span>
+    <span>// 拼接路由</span>
+    <span>let</span> data <span>=</span> <span>routesData</span><span>(</span>res<span>.</span>data<span>)</span>
+    <span>// 缓存到vuex</span>
+    store<span>.</span><span>dispatch</span><span>(</span><span>'app/SETNAV'</span><span>,</span>res<span>.</span>data<span>)</span>
+    <span>// 动态添加</span>
+    <span>//router.matcher = new Router.matcher</span>
+    router<span>.</span><span>addRoutes</span><span>(</span>data<span>)</span>
+  <span>}</span><span>)</span>
+<span>}</span>
+<span>//拼接路由</span>
+<span>function</span> <span>routesData</span><span>(</span><span>result</span><span>)</span><span>{</span>
+  result<span>.</span><span>forEach</span><span>(</span><span>item</span> <span>=></span> <span>{</span>
+    routes<span>.</span><span>push</span><span>(</span>
+      <span>layout</span><span>(</span><span>'Default'</span><span>,</span> <span>[</span>
+        <span>route</span><span>(</span>item<span>.</span>component<span>,</span> <span>null</span><span>,</span> item<span>.</span>path<span>)</span>
+      <span>]</span><span>)</span>
+    <span>)</span>
+  <span>}</span><span>)</span>
+  <span>return</span> routes
+<span>}</span>
+</code></pre>
+<div><span>1</span><br><span>2</span><br><span>3</span><br><span>4</span><br><span>5</span><br><span>6</span><br><span>7</span><br><span>8</span><br><span>9</span><br><span>10</span><br><span>11</span><br><span>12</span><br><span>13</span><br><span>14</span><br><span>15</span><br><span>16</span><br><span>17</span><br><span>18</span><br><span>19</span><br><span>20</span><br><span>21</span><br><span>22</span><br><span>23</span><br><span>24</span><br><span>25</span><br><span>26</span><br><span>27</span><br><span>28</span><br><span>29</span><br><span>30</span><br><span>31</span><br><span>32</span><br><span>33</span><br><span>34</span><br><span>35</span><br><span>36</span><br><span>37</span><br><span>38</span><br></div></div><div><pre><code><span>// 修改后的代码</span>
+
+<span>const</span> routes <span>=</span> <span>[</span><span>]</span>
+<span>// 根据复用的数据动态生成路由</span>
+<span>const</span> router <span>=</span> <span>new</span> <span>Router</span><span>(</span><span>{</span>
+  routes<span>,</span>
+<span>}</span><span>)</span>
+<span>//路由拦截</span>
+router<span>.</span><span>beforeEach</span><span>(</span><span>(</span><span>to<span>,</span>from<span>,</span>next</span><span>)</span> <span>=></span> <span>{</span>
+  <span>next</span><span>(</span><span>)</span>
+<span>}</span><span>)</span><span>;</span>
+<span>// 动态生成路由数据</span>
+<span>(</span><span>function</span> <span>addRoute</span><span>(</span><span>)</span><span>{</span>
+  <span>// 请求数据</span>
+  <span>getNav</span><span>(</span><span>)</span><span>.</span><span>then</span><span>(</span><span>res</span><span>=></span><span>{</span>
+    console<span>.</span><span>log</span><span>(</span><span>"请求导航栏1："</span><span>,</span>res<span>)</span>
+    <span>// 拼接路由</span>
+    <span>let</span> data <span>=</span> <span>routesData</span><span>(</span>res<span>.</span>data<span>)</span>
+    <span>// 缓存到vuex</span>
+    store<span>.</span><span>dispatch</span><span>(</span><span>'app/SETNAV'</span><span>,</span>res<span>.</span>data<span>)</span>
+    <span>// 动态添加</span>
+    <span>//router.matcher = new Router.matcher</span>
+    router<span>.</span><span>addRoutes</span><span>(</span>data<span>)</span>
+  <span>}</span><span>)</span>
+<span>}</span><span>)</span><span>(</span><span>)</span>
+
+<span>//拼接路由</span>
+<span>function</span> <span>routesData</span><span>(</span><span>result</span><span>)</span><span>{</span>
+  result<span>.</span><span>forEach</span><span>(</span><span>item</span> <span>=></span> <span>{</span>
+    routes<span>.</span><span>push</span><span>(</span>
+      <span>layout</span><span>(</span><span>'Default'</span><span>,</span> <span>[</span>
+        <span>route</span><span>(</span>item<span>.</span>component<span>,</span> <span>null</span><span>,</span> item<span>.</span>path<span>)</span>
+      <span>]</span><span>)</span>
+    <span>)</span>
+  <span>}</span><span>)</span>
+  <span>return</span> routes
+<span>}</span>
+</code></pre>
+<div><span>1</span><br><span>2</span><br><span>3</span><br><span>4</span><br><span>5</span><br><span>6</span><br><span>7</span><br><span>8</span><br><span>9</span><br><span>10</span><br><span>11</span><br><span>12</span><br><span>13</span><br><span>14</span><br><span>15</span><br><span>16</span><br><span>17</span><br><span>18</span><br><span>19</span><br><span>20</span><br><span>21</span><br><span>22</span><br><span>23</span><br><span>24</span><br><span>25</span><br><span>26</span><br><span>27</span><br><span>28</span><br><span>29</span><br><span>30</span><br><span>31</span><br><span>32</span><br><span>33</span><br><span>34</span><br><span>35</span><br><span>36</span><br><span>37</span><br></div></div>]]></content:encoded>
+    </item>
+    <item>
+      <title>vuepress2 踩坑</title>
+      <link>https://zhihangliu2020.github.io/posts/prob/vue/</link>
+      <guid>https://zhihangliu2020.github.io/posts/prob/vue/</guid>
+      <source url="https://zhihangliu2020.github.io/rss.xml">vuepress2 踩坑</source>
+      <category>problem</category>
+      <pubDate>Mon, 14 Jun 2021 00:00:00 GMT</pubDate>
+      <content:encoded><![CDATA[<h2 id="vuepress2-vuepress-plugin-register-components-出错"> vuepress2 @vuepress/plugin-register-components 出错</h2>
+<p>在使用vuepress2设置插件时，<code>plugins:[]</code>设置的插件都不生效，没有找到原因。
+按照官网文档的介绍，安装完插件<code>@vuepress/plugin-register-components</code>后，如下配置，页面报错：<code>[Vue warn]: Failed to resolve component: HelloWorld</code>，仔细翻阅文档和设置，仍然无法解决。</p>
+<div><pre><code>plugins<span>:</span> <span>[</span>
+  <span>[</span>
+    <span>'@vuepress/plugin-register-components'</span><span>,</span>
+    <span>{</span>
+      componentsDir<span>:</span> path<span>.</span><span>resolve</span><span>(</span>__dirname<span>,</span> <span>'./components'</span><span>)</span><span>,</span>
+      components<span>:</span> <span>{</span>
+        HelloWorld<span>:</span> path<span>.</span><span>resolve</span><span>(</span>__dirname<span>,</span> <span>'./components/HelloWorld.vue'</span><span>)</span><span>,</span>
+      <span>}</span><span>,</span>
+    <span>}</span><span>,</span>
+  <span>]</span><span>,</span>
+<span>]</span>
+</code></pre>
+<div><span>1</span><br><span>2</span><br><span>3</span><br><span>4</span><br><span>5</span><br><span>6</span><br><span>7</span><br><span>8</span><br><span>9</span><br><span>10</span><br><span>11</span><br></div></div><p>改用官网介绍的另一种方式：<code>clientAppEnhance.js</code>
+可以正确解析到组件。在md文件中直接写组件名即可使用。</p>
+<div><pre><code><span>import</span> <span>{</span> defineClientAppEnhance <span>}</span> <span>from</span> <span>'@vuepress/client'</span>
+<span>import</span> MyComponent <span>from</span> <span>'./MyComponent.vue'</span> <span>// 导入自己写的vue组件</span>
+
+<span>export</span> <span>default</span> <span>defineClientAppEnhance</span><span>(</span><span>(</span><span><span>{</span> app<span>,</span> router<span>,</span> siteData <span>}</span></span><span>)</span> <span>=></span> <span>{</span>
+  app<span>.</span><span>component</span><span>(</span><span>'MyComponent'</span><span>,</span> MyComponent<span>)</span> <span>// 注册</span>
+<span>}</span><span>)</span>
+</code></pre>
+<div><span>1</span><br><span>2</span><br><span>3</span><br><span>4</span><br><span>5</span><br><span>6</span><br></div></div>]]></content:encoded>
+    </item>
+    <item>
+      <title>ava-commander-front</title>
+      <link>https://zhihangliu2020.github.io/posts/proj/ava-commander-front/</link>
+      <guid>https://zhihangliu2020.github.io/posts/proj/ava-commander-front/</guid>
+      <source url="https://zhihangliu2020.github.io/rss.xml">ava-commander-front</source>
+      <category>project</category>
+      <pubDate>Sun, 27 Jun 2021 00:00:00 GMT</pubDate>
+      <content:encoded><![CDATA[<h2 id="ava-commander-front项目开发日志"> ava-commander-front项目开发日志</h2>
+<h3 id="项目概述"> 项目概述</h3>
+<ul>
+<li>avalanche C100 web控制</li>
+</ul>
+<h3 id="相关文档"> 相关文档</h3>
+<ul>
+<li><a href="https://cn.vuejs.org/" target="_blank" rel="noopener noreferrer">vue</a></li>
+<li><a href="https://vuetify.cn/zh-Hans/" target="_blank" rel="noopener noreferrer">vuetify</a></li>
+</ul>
+<h3 id="开发进度"> 开发进度</h3>
+<ul>
+<li>2021.6.27
+<ul>
+<li>搭建开发环境，建立项目仓库</li>
+<li>使用vuetify模板生成了项目基本框架</li>
+<li>实现了登陆页面，建立了和后端的连接</li>
+<li>实现了四个页面需要用到的的组件</li>
+</ul>
+</li>
+<li>2021.7.4
+<ul>
+<li>实现了导航栏权限管理，动态路由</li>
+<li>对axios进行了二次封装（两种方式）</li>
+</ul>
+</li>
+<li>2021.7.5
+<ul>
+<li>调通了场景管理，结果管理，支持协议和流量样本的接口，实现了获取数据</li>
+<li>实现了文件上传功能</li>
+</ul>
+</li>
+<li>2021.7.8
+<ul>
+<li>实现了文件下载功能</li>
+</ul>
+</li>
+<li>2021.7.13
+<ul>
+<li>实现了token方式登陆验证，参考了：<a href="https://segmentfault.com/a/1190000020231569" target="_blank" rel="noopener noreferrer">登陆验证</a></li>
+<li>实现了路由拦截</li>
+<li>对vuex的数据进行了固化</li>
+<li>优化了登陆页的样式</li>
+</ul>
+</li>
+</ul>
+]]></content:encoded>
+    </item>
+    <item>
+      <title>vuetify UI组件</title>
+      <link>https://zhihangliu2020.github.io/posts/prob/vuetify/</link>
+      <guid>https://zhihangliu2020.github.io/posts/prob/vuetify/</guid>
+      <source url="https://zhihangliu2020.github.io/rss.xml">vuetify UI组件</source>
+      <category>problem</category>
+      <pubDate>Thu, 24 Jun 2021 00:00:00 GMT</pubDate>
+      <content:encoded><![CDATA[<h2 id="vuetify-布局"> vuetify 布局</h2>
+<ol>
+<li>必须包裹在 v-app 中间，vuetify的样式和布局才会生效。因此，对一个应用，要让v-app做最外层的标签。建议的文件结构：</li>
+</ol>
+<blockquote>
+<p>当使用 vue-router 时，建议将你的视图放在 v-main 内。</p>
+</blockquote>
+<div><pre><code><span>&lt;!-- App.vue --></span>
+
+<span><span><span>&lt;</span>v-app</span><span>></span></span>
+  <span><span><span>&lt;</span>v-navigation-drawer</span> <span>app</span><span>></span></span>
+    <span>&lt;!-- --></span>
+  <span><span><span>&lt;/</span>v-navigation-drawer</span><span>></span></span>
+
+  <span><span><span>&lt;</span>v-app-bar</span> <span>app</span><span>></span></span>
+    <span>&lt;!-- --></span>
+  <span><span><span>&lt;/</span>v-app-bar</span><span>></span></span>
+
+  <span>&lt;!-- 根据应用组件来调整你的内容 --></span>
+  <span><span><span>&lt;</span>v-main</span><span>></span></span>
+
+    <span>&lt;!-- 给应用提供合适的间距 --></span>
+    <span><span><span>&lt;</span>v-container</span> <span>fluid</span><span>></span></span>
+
+      <span>&lt;!-- 如果使用 vue-router --></span>
+      <span><span><span>&lt;</span>router-view</span><span>></span></span><span><span><span>&lt;/</span>router-view</span><span>></span></span>
+    <span><span><span>&lt;/</span>v-container</span><span>></span></span>
+  <span><span><span>&lt;/</span>v-main</span><span>></span></span>
+
+  <span><span><span>&lt;</span>v-footer</span> <span>app</span><span>></span></span>
+    <span>&lt;!-- --></span>
+  <span><span><span>&lt;/</span>v-footer</span><span>></span></span>
+<span><span><span>&lt;/</span>v-app</span><span>></span></span>
+</code></pre>
+<div><span>1</span><br><span>2</span><br><span>3</span><br><span>4</span><br><span>5</span><br><span>6</span><br><span>7</span><br><span>8</span><br><span>9</span><br><span>10</span><br><span>11</span><br><span>12</span><br><span>13</span><br><span>14</span><br><span>15</span><br><span>16</span><br><span>17</span><br><span>18</span><br><span>19</span><br><span>20</span><br><span>21</span><br><span>22</span><br><span>23</span><br><span>24</span><br><span>25</span><br><span>26</span><br></div></div>]]></content:encoded>
+    </item>
+    <item>
+      <title>vuex 报错 unknown action type XXX</title>
+      <link>https://zhihangliu2020.github.io/posts/prob/vuex/</link>
+      <guid>https://zhihangliu2020.github.io/posts/prob/vuex/</guid>
+      <source url="https://zhihangliu2020.github.io/rss.xml">vuex 报错 unknown action type XXX</source>
+      <category>problem</category>
+      <pubDate>Wed, 30 Jun 2021 00:00:00 GMT</pubDate>
+      <content:encoded><![CDATA[<h2 id="vuex使用"> vuex使用</h2>
+<div><pre><code><span>//开启命名空间时，组件里调用actions中的方法时路径为 文件名/方法</span>
+store<span>.</span><span>dispatch</span><span>(</span><span>'app/setnav'</span><span>,</span> data<span>)</span>
+
+</code></pre>
+<div><span>1</span><br><span>2</span><br><span>3</span><br></div></div><div><pre><code><span>// 如果分了模块，访问state中的内容时应加上filename</span>
+store<span>.</span>state<span>.</span>filename<span>.</span>dataname
+
+<span>//文件位置：store/modules/user.js</span>
+
+<span>{</span><span>{</span>user<span>.</span>username<span>}</span><span>}</span>
+<span>import</span> <span>{</span> mapState <span>}</span> <span>from</span> <span>'vuex'</span>
+computed<span>:</span> <span>{</span>
+  <span>...</span><span>mapState</span><span>(</span><span>[</span><span>'user'</span><span>]</span><span>)</span>
+<span>}</span><span>,</span>
+
+</code></pre>
+<div><span>1</span><br><span>2</span><br><span>3</span><br><span>4</span><br><span>5</span><br><span>6</span><br><span>7</span><br><span>8</span><br><span>9</span><br><span>10</span><br><span>11</span><br></div></div>]]></content:encoded>
+    </item>
+    <item>
+      <title>Project List</title>
+      <link>https://zhihangliu2020.github.io/posts/proj/</link>
+      <guid>https://zhihangliu2020.github.io/posts/proj/</guid>
+      <source url="https://zhihangliu2020.github.io/rss.xml">Project List</source>
+      <pubDate>Sun, 08 Aug 2021 08:49:33 GMT</pubDate>
+      <content:encoded><![CDATA[<div><p>Project</p>
+<p>一些练手项目的开发记录</p>
+</div>
+]]></content:encoded>
+    </item>
+    <item>
+      <title>ava-commander-back</title>
+      <link>https://zhihangliu2020.github.io/posts/proj/ava-commander-back/</link>
+      <guid>https://zhihangliu2020.github.io/posts/proj/ava-commander-back/</guid>
+      <source url="https://zhihangliu2020.github.io/rss.xml">ava-commander-back</source>
+      <category>project</category>
+      <pubDate>Sun, 27 Jun 2021 00:00:00 GMT</pubDate>
+      <content:encoded><![CDATA[<h2 id="ava-commander-back项目开发日志"> ava-commander-back项目开发日志</h2>
+<h3 id="项目概述"> 项目概述</h3>
+<ul>
+<li>ava-commander-front的配套后端服务器</li>
+</ul>
+<h3 id="相关文档"> 相关文档</h3>
+<ul>
+<li><a href="https://koa.bootcss.com/" target="_blank" rel="noopener noreferrer">koa2</a></li>
+<li><a href="https://www.liaoxuefeng.com/wiki/1022910821149312/1099752344192192" target="_blank" rel="noopener noreferrer">廖雪峰koa入门</a></li>
+</ul>
+<h3 id="开发进度"> 开发进度</h3>
+<ul>
+<li>2021.6.27
+<ul>
+<li>开发环境搭建，项目仓库建立</li>
+<li>使用koa2-generator生成了项目基本框架</li>
+<li>引入了axios，mysql组件</li>
+<li>实现了请求用户信息的接口</li>
+</ul>
+</li>
+<li>2021.7.4
+<ul>
+<li>添加了动态路由对应的导航栏接口，数据库表</li>
+</ul>
+</li>
+<li>2021.7.5
+<ul>
+<li>数据库增加了场景表，结果表，支持协议表，支持流量表</li>
+<li>为上述表提供了查询接口</li>
+<li>实现了文件上传功能</li>
+</ul>
+</li>
+<li>2021.7.8
+<ul>
+<li>实现了文件下载功能</li>
+</ul>
+</li>
+<li>2021.7.13
+<ul>
+<li>实现了登陆验证接口，利用中间件jsonwebtoken</li>
+<li>分离了用户信息接口和数据接口</li>
+</ul>
+</li>
+</ul>
+]]></content:encoded>
+    </item>
+    <item>
+      <title>Linux命令</title>
+      <link>https://zhihangliu2020.github.io/posts/tech/Linux-command/</link>
+      <guid>https://zhihangliu2020.github.io/posts/tech/Linux-command/</guid>
+      <source url="https://zhihangliu2020.github.io/rss.xml">Linux命令</source>
+      <category>tools</category>
+      <pubDate>Sun, 06 Jun 2021 00:00:00 GMT</pubDate>
+      <content:encoded><![CDATA[<h2 id="tree"> tree</h2>
+<div><pre><code><span># tree 以树状图列出当前目录结构</span>
+<span># 列出3层以内的，排除 node_moudules 文件夹</span>
+tree -L <span>3</span> -I <span>"node_modules"</span>
+<span># 仅列出目录</span>
+tree -d
+</code></pre>
+<div><span>1</span><br><span>2</span><br><span>3</span><br><span>4</span><br><span>5</span><br></div></div>]]></content:encoded>
+    </item>
+    <item>
+      <title>Tech List</title>
+      <link>https://zhihangliu2020.github.io/posts/tech/</link>
+      <guid>https://zhihangliu2020.github.io/posts/tech/</guid>
+      <source url="https://zhihangliu2020.github.io/rss.xml">Tech List</source>
+      <pubDate>Sun, 08 Aug 2021 08:49:33 GMT</pubDate>
+      <content:encoded><![CDATA[<div><p>Tool</p>
+<p>工具使用记录</p>
+</div>
+]]></content:encoded>
+    </item>
+    <item>
+      <title>Github + vuepress 搭建个人博客</title>
+      <link>https://zhihangliu2020.github.io/posts/tech/blog-dev/</link>
+      <guid>https://zhihangliu2020.github.io/posts/tech/blog-dev/</guid>
+      <source url="https://zhihangliu2020.github.io/rss.xml">Github + vuepress 搭建个人博客</source>
+      <category>tools</category>
+      <pubDate>Mon, 14 Jun 2021 00:00:00 GMT</pubDate>
+      <content:encoded><![CDATA[<h2 id="一、vuepress项目搭建"> 一、vuepress项目搭建</h2>
+<p>注意vuepress的版本，不同版本的配置参数有差异。我选择的是vuepress2.0版本，具体搭建步骤按照<a href="https://v2.vuepress.vuejs.org/zh/guide/getting-started.html#%E4%BE%9D%E8%B5%96%E7%8E%AF%E5%A2%83" target="_blank" rel="noopener noreferrer">官方文档</a>来。</p>
+<p>构建如下项目目录：</p>
+<div><pre><code>//项目目录
+├─ docs
+│  ├─ .vuepress
+│  │  └─ config.js
+│  └─ README.md
+├─ .gitignore
+└─ package.json
+</code></pre>
+<div><span>1</span><br><span>2</span><br><span>3</span><br><span>4</span><br><span>5</span><br><span>6</span><br><span>7</span><br></div></div><p>编写config.js：</p>
+<div><pre><code><span>//config.js</span>
+module<span>.</span>exports <span>=</span> <span>{</span>
+    lang<span>:</span> <span>'zh-CN'</span><span>,</span>
+    title<span>:</span> <span>'ZhihangLiu\'s blog'</span><span>,</span> <span>//显示在导航栏</span>
+    base<span>:</span> <span>'/'</span><span>,</span> <span>//部署在github需要配置该参数</span>
+    description<span>:</span> <span>'This is zhL\'s blog'</span><span>,</span>
+    head<span>:</span> <span>[</span><span>[</span><span>'link'</span><span>,</span> <span>{</span> rel<span>:</span> <span>'icon'</span><span>,</span> href<span>:</span> <span>'/images/navLogo.webp'</span> <span>}</span><span>]</span><span>]</span><span>,</span>
+    markdown<span>:</span> <span>{</span>
+        code<span>:</span><span>{</span>
+            lineNumbers<span>:</span> <span>false</span>
+        <span>}</span>
+    <span>}</span><span>,</span>
+    <span>// 内置主题设置</span>
+    themeConfig<span>:</span> <span>{</span>
+        logo<span>:</span> <span>'/images/navLogo.webp'</span><span>,</span><span>// Public是图片根文件夹</span>
+        home<span>:</span> <span>'/'</span><span>,</span> <span>//点击导航栏左侧title，回到home路径</span>
+        darkMode<span>:</span> <span>true</span><span>,</span>
+        <span>//导航栏，根文件夹是 docs</span>
+        navbar<span>:</span> <span>[</span>
+            <span>// navbarItem</span>
+            <span>{</span>
+                text<span>:</span> <span>'Problem Log'</span><span>,</span>
+                link<span>:</span> <span>'/posts/prob/'</span> <span>//这个路径会导航到 docs/posts/prob/README.md</span>
+            <span>}</span><span>,</span>
+            <span>{</span>
+                text<span>:</span> <span>'Tech Note'</span><span>,</span>
+                link<span>:</span> <span>'/posts/tech/'</span>
+            <span>}</span><span>,</span>
+            <span>{</span>
+                text<span>:</span> <span>'Project Desc'</span><span>,</span>
+                link<span>:</span> <span>'/posts/proj/'</span>
+            <span>}</span><span>,</span>
+            <span>{</span>
+                text<span>:</span> <span>'Reading Book'</span><span>,</span>
+                link<span>:</span> <span>'/posts/book/'</span>
+            <span>}</span><span>,</span>
+            <span>{</span>
+                text<span>:</span> <span>'Online Docs'</span><span>,</span>
+                children<span>:</span> <span>[</span>
+                    <span>{</span>text<span>:</span> <span>'ES6'</span><span>,</span> link<span>:</span> <span>'https://es6.ruanyifeng.com/'</span><span>}</span><span>,</span>
+                    <span>{</span>text<span>:</span> <span>'MarkDown'</span><span>,</span> link<span>:</span> <span>'https://markdown.com.cn/'</span><span>}</span><span>,</span>
+                    <span>{</span>text<span>:</span> <span>'JavaScript'</span><span>,</span> link<span>:</span> <span>'https://developer.mozilla.org/zh-CN/docs/Web/JavaScript'</span><span>}</span><span>,</span>
+                    <span>{</span>text<span>:</span> <span>'Electron'</span><span>,</span> link<span>:</span> <span>'https://www.electronjs.org/docs'</span><span>}</span><span>,</span>
+                    <span>{</span>text<span>:</span> <span>'Shields'</span><span>,</span> link<span>:</span> <span>'https://shields.io/'</span><span>}</span>
+                <span>]</span>
+            <span>}</span><span>,</span>
+            <span>// 导航到个人简历页</span>
+            <span>{</span>
+                text<span>:</span> <span>'About Me'</span><span>,</span>
+                link<span>:</span> <span>'https://zhihangliu2020.github.io/resume/'</span>
+            <span>}</span><span>,</span>
+        <span>]</span><span>,</span>
+        
+        <span>// 侧边栏，不同子路径下的页面会使用不同的侧边栏</span>
+        sidebar<span>:</span> <span>{</span>
+            <span>'/posts/prob/'</span><span>:</span> <span>[</span>
+                <span>{</span>
+                    isGroup<span>:</span> <span>true</span><span>,</span>
+                    text<span>:</span> <span>'problems log'</span><span>,</span>
+                    children<span>:</span> <span>[</span><span>'README.md'</span><span>,</span><span>'electron.md'</span><span>]</span> <span>// 每一项对应一个.md文件</span>
+                <span>}</span>
+            <span>]</span><span>,</span>
+            <span>'/posts/tech/'</span><span>:</span><span>[</span>
+                <span>{</span>
+                    isGroup<span>:</span> <span>true</span><span>,</span>
+                    text<span>:</span> <span>'technology'</span><span>,</span>
+                    children<span>:</span> <span>[</span><span>'README.md'</span><span>,</span><span>'git.md'</span><span>,</span><span>'front-end.md'</span><span>]</span>
+                <span>}</span>
+            <span>]</span><span>,</span>
+            <span>'/posts/book/'</span><span>:</span> <span>[</span>
+                <span>{</span>
+                    isGroup<span>:</span> <span>true</span><span>,</span>
+                    text<span>:</span> <span>'books'</span><span>,</span>
+                    children<span>:</span> <span>[</span><span>'README.md'</span><span>,</span><span>'OS.md'</span><span>,</span> <span>'Network.md'</span><span>]</span>
+                <span>}</span>
+            <span>]</span><span>,</span>
+            <span>'/posts/proj/'</span><span>:</span> <span>[</span>
+                <span>{</span>
+                    text<span>:</span> <span>'project'</span><span>,</span>
+                    children<span>:</span> <span>[</span><span>'README.md'</span><span>,</span><span>'111.md'</span><span>,</span><span>'222.md'</span><span>]</span>
+                <span>}</span>
+            <span>]</span>
+        <span>}</span><span>,</span>
+        <span>// 向前向后翻页</span>
+        next<span>:</span> <span>true</span><span>,</span>
+        prev<span>:</span> <span>true</span><span>,</span>
+        <span>// 使用git提交后会在底下显示提交时间</span>
+        lastUpdated<span>:</span> <span>'Last Updated'</span><span>,</span>
+        <span>//页面滚动</span>
+        smoothScroll<span>:</span> <span>true</span><span>,</span>
+    <span>}</span><span>,</span>
+    plugins<span>:</span> <span>[</span><span>]</span>
+<span>}</span>
+</code></pre>
+<div><span>1</span><br><span>2</span><br><span>3</span><br><span>4</span><br><span>5</span><br><span>6</span><br><span>7</span><br><span>8</span><br><span>9</span><br><span>10</span><br><span>11</span><br><span>12</span><br><span>13</span><br><span>14</span><br><span>15</span><br><span>16</span><br><span>17</span><br><span>18</span><br><span>19</span><br><span>20</span><br><span>21</span><br><span>22</span><br><span>23</span><br><span>24</span><br><span>25</span><br><span>26</span><br><span>27</span><br><span>28</span><br><span>29</span><br><span>30</span><br><span>31</span><br><span>32</span><br><span>33</span><br><span>34</span><br><span>35</span><br><span>36</span><br><span>37</span><br><span>38</span><br><span>39</span><br><span>40</span><br><span>41</span><br><span>42</span><br><span>43</span><br><span>44</span><br><span>45</span><br><span>46</span><br><span>47</span><br><span>48</span><br><span>49</span><br><span>50</span><br><span>51</span><br><span>52</span><br><span>53</span><br><span>54</span><br><span>55</span><br><span>56</span><br><span>57</span><br><span>58</span><br><span>59</span><br><span>60</span><br><span>61</span><br><span>62</span><br><span>63</span><br><span>64</span><br><span>65</span><br><span>66</span><br><span>67</span><br><span>68</span><br><span>69</span><br><span>70</span><br><span>71</span><br><span>72</span><br><span>73</span><br><span>74</span><br><span>75</span><br><span>76</span><br><span>77</span><br><span>78</span><br><span>79</span><br><span>80</span><br><span>81</span><br><span>82</span><br><span>83</span><br><span>84</span><br><span>85</span><br><span>86</span><br><span>87</span><br><span>88</span><br><span>89</span><br><span>90</span><br><span>91</span><br><span>92</span><br><span>93</span><br></div></div><h2 id="二、部署到github"> 二、部署到Github</h2>
+<p>首先在github上创建一个名为 &lt;USERNAME&gt;.github.io 的仓库。</p>
+<p>在项目文件夹添加一个shell脚本，完成git的相关命令：</p>
+<div><pre><code><span># deploy.sh</span>
+<span>#!/bin/zsh</span>
+<span># 运行之前，检查文件是否有运行权限，如没有，先执行 `chmod 777 deploy.sh`</span>
+<span># 确保脚本抛出遇到的错误</span>
+<span>set</span> -e
+
+<span># 生成静态文件</span>
+<span>npm</span> run docs:build
+
+<span># 进入生成的文件夹</span>
+<span>cd</span> docs/.vuepress/dist
+
+<span>git</span> init
+<span>git</span> <span>add</span> -A
+<span>git</span> commit -m <span>'deploy'</span>
+
+<span># 如果发布到 https://&lt;USERNAME>.github.io</span>
+<span>git</span> push -f git@github.com:ZhihangLiu2020/ZhihangLiu2020.github.io.git master
+
+<span># 如果发布到 https://&lt;USERNAME>.github.io/&lt;REPO></span>
+<span># git push -f git@github.com:&lt;USERNAME>/&lt;REPO>.git master</span>
+</code></pre>
+<div><span>1</span><br><span>2</span><br><span>3</span><br><span>4</span><br><span>5</span><br><span>6</span><br><span>7</span><br><span>8</span><br><span>9</span><br><span>10</span><br><span>11</span><br><span>12</span><br><span>13</span><br><span>14</span><br><span>15</span><br><span>16</span><br><span>17</span><br><span>18</span><br><span>19</span><br><span>20</span><br><span>21</span><br></div></div><h2 id="三、添加个人简历页面"> 三、添加个人简历页面</h2>
+<p>实际上是另外再建立一个github公开仓库resume，把个人简历项目部署上去。</p>
+<p>我的个人简历页使用了<a href="https://github.com/Siricee/Resume-vuepress" target="_blank" rel="noopener noreferrer">Resume-vuepress</a>项目的模板，这其实也是一个vuepress项目。</p>
+<p>搭建好以后，同样利用deploy.sh脚本部署到新建的github仓库，注意在脚本中修改为resume仓库地址。</p>
+<p>然后进入resume仓库页面进行如下设置：</p>
+<div><pre><code>Settings -&gt; Pages -&gt; source -&gt; select branch -&gt; master -&gt; save
+</code></pre>
+<div><span>1</span><br></div></div><p>设置完成后，访问https://zhihangliu2020.github.io/resume/ 可以看到简历页面。</p>
+<p>然后在博客页面和简历页面添加互相跳转的链接。</p>
+<div><pre><code><span>//config.js</span>
+module<span>.</span>exports <span>=</span> <span>{</span>
+    title<span>:</span> <span>'ZhihangLiu\'s Resume'</span><span>,</span>
+    base<span>:</span> <span>'/resume/'</span><span>,</span> <span>//resume仓库地址</span>
+    themeConfig<span>:</span> <span>{</span>
+        <span>// 导航栏添加一个跳转到博客页面的链接</span>
+        nav<span>:</span> <span>[</span>
+            <span>{</span> text<span>:</span> <span>'Back to blog'</span><span>,</span> link<span>:</span> <span>'https://zhihangliu2020.github.io/'</span> <span>}</span>
+        <span>]</span><span>,</span>
+        search<span>:</span> <span>false</span><span>,</span>
+        smoothScroll<span>:</span> <span>true</span><span>,</span>
+        lastUpdated<span>:</span> <span>'Last Updated'</span><span>,</span>
+        <span>/* sidebar: [{
+            title: '简历',
+            collapsable: false,
+            children: [ '/' ]
+        }
+      ], */</span>
+    <span>}</span>
+<span>}</span>
+</code></pre>
+<div><span>1</span><br><span>2</span><br><span>3</span><br><span>4</span><br><span>5</span><br><span>6</span><br><span>7</span><br><span>8</span><br><span>9</span><br><span>10</span><br><span>11</span><br><span>12</span><br><span>13</span><br><span>14</span><br><span>15</span><br><span>16</span><br><span>17</span><br><span>18</span><br><span>19</span><br><span>20</span><br></div></div>]]></content:encoded>
+    </item>
+    <item>
+      <title>使用shell创建github远程仓库</title>
+      <link>https://zhihangliu2020.github.io/posts/tech/git/</link>
+      <guid>https://zhihangliu2020.github.io/posts/tech/git/</guid>
+      <source url="https://zhihangliu2020.github.io/rss.xml">使用shell创建github远程仓库</source>
+      <category>tools</category>
+      <pubDate>Sat, 03 Apr 2021 00:00:00 GMT</pubDate>
+      <content:encoded><![CDATA[<h2 id="shell创建git远程仓库"> shell创建git远程仓库</h2>
+<p>创建github仓库有2种方法：</p>
+<ol>
+<li>在网页上操作</li>
+<li>使用git在shell中操作</li>
+</ol>
+<p>具体步骤如下：</p>
+<ol>
+<li>
+<p>申请github <a href="https://github.com/settings/tokens" target="_blank" rel="noopener noreferrer">Personal access tokens</a>，点击链接进入github，点击Generate new token, 填写一下描述，勾选repo，点击生成。把产生的token复制一下保存起来。</p>
+</li>
+<li>
+<p>打开shell，使用如下命令通过构建post来创建仓库：</p>
+<div><pre><code><span>curl</span> -u <span>$username</span> https://api.github.com/user/repos -d ‘<span>{</span>“name”:<span>$reponame</span><span>}</span>’
+</code></pre>
+<div><span>1</span><br></div></div><p>$username 为你的github账户名</p>
+<p>$reponame 为你想创建的仓库名</p>
+<p>回车以后，输入刚刚申请的token，创建完成。</p>
+</li>
+<li>
+<p>如果想关联到本地已经有的同名仓库，使用如下命令：</p>
+<div><pre><code><span>git</span> remote <span>add</span> origin git@github.com:<span>$username</span>/<span>$reponame</span>.git
+</code></pre>
+<div><span>1</span><br></div></div><p>$username 为你的github用户名</p>
+<p>$reponame 为你github上的仓库名</p>
+</li>
+<li>
+<p>后续就可以把本地的内容push到远程仓库了</p>
+<div><pre><code><span>git</span> push origin master
+</code></pre>
+<div><span>1</span><br></div></div></li>
+</ol>
+<p>其他一些git命令：</p>
+<div><pre><code><span>git</span> remote -v  查看远程仓库地址
+<span>git</span> remote remove origin 移除和远程仓库的关联
+</code></pre>
+<div><span>1</span><br><span>2</span><br></div></div><p>reference：</p>
+<p>1.https://www.cnblogs.com/zhoudayang/p/5510729.html</p>
+]]></content:encoded>
+    </item>
+    <item>
+      <title>Vue-router的嵌套路由</title>
+      <link>https://zhihangliu2020.github.io/posts/tech/vue-router/</link>
+      <guid>https://zhihangliu2020.github.io/posts/tech/vue-router/</guid>
+      <source url="https://zhihangliu2020.github.io/rss.xml">Vue-router的嵌套路由</source>
+      <category>tools</category>
+      <pubDate>Thu, 15 Jul 2021 00:00:00 GMT</pubDate>
+      <content:encoded><![CDATA[<h3 id="共享布局"> 共享布局</h3>
+<p>有时需要实现这样的布局：</p>
+<div><pre><code>+-----------------------------------+
+|              header               |
+|-------+---------------------------|
+|-------|                           |
+|-aside-|         main              |
+|-------|                           |
+|-------|                           |
++-------+---------------------------+
+</code></pre>
+<div><span>1</span><br><span>2</span><br><span>3</span><br><span>4</span><br><span>5</span><br><span>6</span><br><span>7</span><br><span>8</span><br></div></div><p>并且header和aside是固定的(当然其上的数据可以是变化的)，点击aside中的每个tab，变化的只是main区域。</p>
+<p>这可以利用vue-router的<strong>嵌套路由</strong>实现。
+首先编写一个layout.vue，作为总体布局，header和aside组件是固定的，main组件中嵌套一个<code>&lt;router-view /&gt;</code>.</p>
+<CodeGroup>
+<CodeGroupItem title="layout.vue">
+<div><pre><code><span>&lt;!--layout.vue 总体布局组件--></span>
+<span><span><span>&lt;</span>template</span><span>></span></span>
+	<span><span><span>&lt;</span>div</span><span>></span></span>
+    <span><span><span>&lt;</span>headBar</span> <span>/></span></span>
+    <span><span><span>&lt;</span>asideBar</span> <span>/></span></span>
+    <span><span><span>&lt;</span>mainBar</span> <span>/></span></span>
+  <span><span><span>&lt;/</span>div</span><span>></span></span>
+<span><span><span>&lt;/</span>template</span><span>></span></span>
+<span><span><span>&lt;</span>script</span><span>></span></span><span><span>
+  <span>import</span> headBar <span>from</span> <span>'./headBar.vue'</span>
+  <span>import</span> asideBar <span>from</span> <span>'./asideBar.vue'</span>
+  <span>import</span> mainBar <span>from</span> <span>'./mainBar.vue'</span>
+  <span>export</span> <span>default</span> <span>{</span>
+    name<span>:</span> <span>'layout'</span><span>,</span>
+    components<span>:</span> <span>{</span>
+      headBar<span>,</span>
+      asideBar<span>,</span>
+      mainBar
+    <span>}</span>
+  <span>}</span>
+</span></span><span><span><span>&lt;/</span>script</span><span>></span></span>
+</code></pre>
+<div><span>1</span><br><span>2</span><br><span>3</span><br><span>4</span><br><span>5</span><br><span>6</span><br><span>7</span><br><span>8</span><br><span>9</span><br><span>10</span><br><span>11</span><br><span>12</span><br><span>13</span><br><span>14</span><br><span>15</span><br><span>16</span><br><span>17</span><br><span>18</span><br><span>19</span><br><span>20</span><br><span>21</span><br></div></div></CodeGroupItem>
+<CodeGroupItem title="mainBar.vue">
+<div><pre><code><span>&lt;!--mainBar.vue main区域，嵌套的路由放在这里--></span>
+<span><span><span>&lt;</span>template</span><span>></span></span>
+	<span><span><span>&lt;</span>div</span><span>></span></span>
+    <span>&lt;!--main content--></span>
+    <span><span><span>&lt;</span>router-view</span> <span>/></span></span>
+  <span><span><span>&lt;/</span>div</span><span>></span></span>
+<span><span><span>&lt;/</span>template</span><span>></span></span>
+</code></pre>
+<div><span>1</span><br><span>2</span><br><span>3</span><br><span>4</span><br><span>5</span><br><span>6</span><br><span>7</span><br></div></div></CodeGroupItem>
+<CodeGroupItem title="router.js">
+<div><pre><code><span>// router.js</span>
+<span>...</span>
+routes <span>=</span> <span>[</span>
+  <span>{</span>
+    path<span>:</span> <span>'/'</span><span>,</span>
+    component<span>:</span> layout<span>,</span>
+    children<span>:</span> <span>[</span>
+      <span>{</span>path<span>:</span> <span>''</span><span>,</span> component<span>:</span> home<span>}</span> <span>// main区域显示home组件</span>
+      <span>{</span>path<span>:</span> <span>'/tab1'</span><span>,</span> component<span>:</span> tab1<span>}</span><span>,</span> <span>// main区域显示tab1组件</span>
+      <span>{</span>path<span>:</span> <span>'/tab2'</span><span>,</span> component<span>:</span> tab2<span>}</span><span>,</span> <span>// main区域显示tab2组件</span>
+      <span>...</span>
+    <span>]</span>
+  <span>}</span>
+<span>]</span>
+<span>const</span> router <span>=</span> <span>new</span> <span>Router</span><span>(</span><span>{</span>
+  routes<span>,</span>
+<span>}</span><span>)</span>
+</code></pre>
+<div><span>1</span><br><span>2</span><br><span>3</span><br><span>4</span><br><span>5</span><br><span>6</span><br><span>7</span><br><span>8</span><br><span>9</span><br><span>10</span><br><span>11</span><br><span>12</span><br><span>13</span><br><span>14</span><br><span>15</span><br><span>16</span><br><span>17</span><br></div></div></CodeGroupItem>
+<CodeGroupItem title="App.vue">
+<div><pre><code><span>&lt;!--App.vue--></span>
+<span><span><span>&lt;</span>template</span><span>></span></span>
+	<span><span><span>&lt;</span>div</span><span>></span></span>
+    <span><span><span>&lt;</span>router-view</span><span>></span></span><span><span><span>&lt;/</span>router-view</span><span>></span></span>
+  <span><span><span>&lt;/</span>div</span><span>></span></span>
+<span><span><span>&lt;/</span>template</span><span>></span></span>
+</code></pre>
+<div><span>1</span><br><span>2</span><br><span>3</span><br><span>4</span><br><span>5</span><br><span>6</span><br></div></div></CodeGroupItem>
+</CodeGroup>
+]]></content:encoded>
+    </item>
+    <item>
+      <title>关于JavaScript原型链的理解</title>
+      <link>https://zhihangliu2020.github.io/posts/tech/prototype/</link>
+      <guid>https://zhihangliu2020.github.io/posts/tech/prototype/</guid>
+      <source url="https://zhihangliu2020.github.io/rss.xml">关于JavaScript原型链的理解</source>
+      <category>tools</category>
+      <pubDate>Thu, 09 Sep 2021 00:00:00 GMT</pubDate>
+      <content:encoded><![CDATA[<h2 id="proto-和prototype"> __proto__和prototype</h2>
+<p>对JS原型链的理解时而清楚时而模糊，今日的理解是这样的：
+参考<a href="https://huang-jerryc.com/2016/06/28/JavaScript%E5%8E%9F%E5%9E%8B%E4%B8%AD%E7%9A%84%E5%93%B2%E5%AD%A6%E6%80%9D%E6%83%B3/" target="_blank" rel="noopener noreferrer">JavaScript原型链中的哲学思想</a></p>
+<img src="/imgs/截屏2021-09-10 下午4.18.08-1262053.png" alt="截屏2021-09-10 下午4.18.08" style="zoom:50%;" />
+<p>![截屏2021-09-10 下午4.21.35](/imgs/截屏2021-09-10 下午4.21.35.png)</p>
+]]></content:encoded>
+      <enclosure url="https://zhihangliu2020.github.io/imgs/截屏2021-09-10 下午4.21.35.png" type="image/png"/>
+    </item>
+    <item>
+      <title>Home</title>
+      <link>https://zhihangliu2020.github.io/</link>
+      <guid>https://zhihangliu2020.github.io/</guid>
+      <source url="https://zhihangliu2020.github.io/rss.xml">Home</source>
+      <pubDate>Sun, 08 Aug 2021 08:49:33 GMT</pubDate>
+    </item>
+    <item>
+      <title>RESTful架构</title>
+      <link>https://zhihangliu2020.github.io/posts/tech/restful/</link>
+      <guid>https://zhihangliu2020.github.io/posts/tech/restful/</guid>
+      <source url="https://zhihangliu2020.github.io/rss.xml">RESTful架构</source>
+      <category>tools</category>
+      <pubDate>Sat, 14 Aug 2021 00:00:00 GMT</pubDate>
+      <content:encoded><![CDATA[<h2 id="关于restful架构"> 关于RESTful架构</h2>
+<p>开发过程中了解到RESTful API，于是搜索了一下REST（Representational State Transfer）。
+了解到RESTful是一种互联网软件架构，也就是基于C/S模式，通过网络进行资源请求。</p>
+<blockquote>
+<p>在RESTful架构中，每个网址代表一种资源（resource），所以网址中不能有动词，只能有名词，而且所用的名词往往与数据库的表格名对应。---阮一峰</p>
+</blockquote>
+<p>RESTful 架构可以充分的利用 HTTP 协议的各种功能，是 HTTP 协议的最佳实践
+请求 = 动词 + 宾语
+GET /zoos
+POST /zoos
+PUT /zoos/:id
+PATCH /zoos/:id
+DELETE /zoos/:id
+动词： 使用五种 HTTP 方法，对应 CRUD 操作。
+宾语： URL 应该全部使用名词复数，可以有例外，比如搜索可以使用更加直观的 search 。
+过滤信息（Filtering） 如果记录数量很多，API应该提供参数，过滤返回结果。 ?limit=10 指定返回记录的数量 ?offset=10 指定返回记录的开始位置。</p>
+]]></content:encoded>
+    </item>
+    <item>
+      <title>vue使用</title>
+      <link>https://zhihangliu2020.github.io/posts/tech/vue-use/</link>
+      <guid>https://zhihangliu2020.github.io/posts/tech/vue-use/</guid>
+      <source url="https://zhihangliu2020.github.io/rss.xml">vue使用</source>
+      <category>tools</category>
+      <pubDate>Sat, 17 Jul 2021 00:00:00 GMT</pubDate>
+      <content:encoded><![CDATA[<h2 id="vue-quill-editor"> vue-quill-editor</h2>
+<p>项目开发中遇到富文本编辑和展示的需求，了解到了quill-editor控件。
+需要富文本编辑时，可以使用vue-quill-editor这个控件，支持自定义控件头。
+需要显示富文本时，也可以使用quill-edirot，添加disabled属性，去掉控件toolbar，但是边框似乎无法去掉。
+也可以使用 v-html=&quot;value&quot; 属性来展示。</p>
+<h2 id="vue权限管理"> vue权限管理</h2>
+<p>对于不同权限的用户登陆进系统，应该展示不同的导航栏。因此导航栏需要动态加载，从后端请求到数据以后，动态添加路由，动态渲染到页面。
+主要需要修改两个地方：</p>
+<ol>
+<li>route/index.js</li>
+<li>store/存储导航栏信息的文件</li>
+</ol>
+<div><pre><code><span>// route/index.js</span>
+<span>// Imports</span>
+<span>import</span> Vue <span>from</span> <span>'vue'</span>
+<span>import</span> Router <span>from</span> <span>'vue-router'</span>
+<span>import</span> <span>{</span>
+  layout<span>,</span>
+  route<span>,</span>
+<span>}</span> <span>from</span> <span>'@/util/routes'</span>
+<span>// 导入请求导航栏的函数</span>
+<span>import</span> getNav <span>from</span> <span>'../api/nav'</span>
+<span>import</span> store <span>from</span> <span>'../store'</span>
+
+Vue<span>.</span><span>use</span><span>(</span>Router<span>)</span>
+<span>// 路由数组，需要拿到后端数据后填充</span>
+<span>const</span> routes <span>=</span> <span>[</span><span>]</span>
+
+<span>// 根据路由数组动态生成路由</span>
+<span>const</span> router <span>=</span> <span>new</span> <span>Router</span><span>(</span><span>{</span>
+  routes<span>,</span>
+<span>}</span><span>)</span>
+
+<span>//路由拦截</span>
+router<span>.</span><span>beforeEach</span><span>(</span><span>(</span><span>to<span>,</span>from<span>,</span>next</span><span>)</span> <span>=></span> <span>{</span>
+  <span>//之前在这里执行addRoutes()，导致了duplicate named routes definition报错，原因是重复添加路由</span>
+  <span>//因此把addRoutes()函数改为立即执行函数，只执行一次</span>
+  <span>next</span><span>(</span><span>)</span>
+<span>}</span><span>)</span><span>;</span> <span>// 这个分号不能少，因为后面是一个立即执行函数</span>
+
+<span>// 动态生成路由数据,立即执行</span>
+<span>(</span><span>function</span> <span>addRoutes</span><span>(</span><span>)</span><span>{</span>
+  <span>// 请求数据</span>
+  <span>getNav</span><span>(</span><span>)</span><span>.</span><span>then</span><span>(</span><span>res</span><span>=></span><span>{</span>
+    console<span>.</span><span>log</span><span>(</span><span>"请求导航栏："</span><span>,</span>res<span>)</span>
+    <span>// 拼接路由</span>
+    <span>let</span> data <span>=</span> <span>routesData</span><span>(</span>res<span>.</span>data<span>)</span>
+    <span>// 缓存到vuex</span>
+    store<span>.</span><span>dispatch</span><span>(</span><span>'app/SETNAV'</span><span>,</span>res<span>.</span>data<span>)</span>
+    <span>// 动态添加</span>
+    router<span>.</span><span>addRoutes</span><span>(</span>data<span>)</span>
+  <span>}</span><span>)</span>
+<span>}</span><span>)</span><span>(</span><span>)</span>
+<span>//拼接路由</span>
+<span>function</span> <span>routesData</span><span>(</span><span>result</span><span>)</span><span>{</span>
+  result<span>.</span><span>forEach</span><span>(</span><span>item</span> <span>=></span> <span>{</span>
+    routes<span>.</span><span>push</span><span>(</span>
+      <span>layout</span><span>(</span><span>'Default'</span><span>,</span> <span>[</span>
+        <span>route</span><span>(</span>item<span>.</span>component<span>,</span> <span>null</span><span>,</span> item<span>.</span>path<span>)</span>
+      <span>]</span><span>)</span>
+    <span>)</span>
+  <span>}</span><span>)</span>
+  <span>return</span> routes
+<span>}</span>
+
+<span>export</span> <span>default</span> router
+</code></pre>
+<div><span>1</span><br><span>2</span><br><span>3</span><br><span>4</span><br><span>5</span><br><span>6</span><br><span>7</span><br><span>8</span><br><span>9</span><br><span>10</span><br><span>11</span><br><span>12</span><br><span>13</span><br><span>14</span><br><span>15</span><br><span>16</span><br><span>17</span><br><span>18</span><br><span>19</span><br><span>20</span><br><span>21</span><br><span>22</span><br><span>23</span><br><span>24</span><br><span>25</span><br><span>26</span><br><span>27</span><br><span>28</span><br><span>29</span><br><span>30</span><br><span>31</span><br><span>32</span><br><span>33</span><br><span>34</span><br><span>35</span><br><span>36</span><br><span>37</span><br><span>38</span><br><span>39</span><br><span>40</span><br><span>41</span><br><span>42</span><br><span>43</span><br><span>44</span><br><span>45</span><br><span>46</span><br><span>47</span><br><span>48</span><br><span>49</span><br><span>50</span><br><span>51</span><br><span>52</span><br><span>53</span><br><span>54</span><br></div></div><div><pre><code><span>// store/app.js</span>
+
+<span>const</span> state <span>=</span> <span>{</span>
+  drawer<span>:</span> <span>null</span><span>,</span>
+  drawerImage<span>:</span> <span>true</span><span>,</span>
+  mini<span>:</span> <span>false</span><span>,</span>
+  items<span>:</span> <span>[</span><span>]</span><span>,</span>
+<span>}</span>
+
+<span>const</span> mutations <span>=</span> <span>{</span>
+  <span>SETNAV</span><span>(</span><span>state<span>,</span> data</span><span>)</span><span>{</span>
+    state<span>.</span>items <span>=</span> data<span>;</span> <span>// 把路由列表放入items数组，待会渲染在页面上</span>
+  <span>}</span>
+<span>}</span>
+<span>const</span> actions <span>=</span> <span>{</span>
+  <span>SETNAV</span><span>(</span><span><span>{</span>commit<span>}</span><span>,</span> data</span><span>)</span><span>{</span>
+    <span>commit</span><span>(</span><span>'SETNAV'</span><span>,</span>data<span>)</span>
+  <span>}</span>
+<span>}</span>
+
+<span>const</span> getters <span>=</span> <span>{</span><span>}</span>
+
+<span>export</span> <span>default</span> <span>{</span>
+  namespaced<span>:</span> <span>true</span><span>,</span>
+  state<span>,</span>
+  mutations<span>,</span>
+  actions<span>,</span>
+  getters<span>,</span>
+<span>}</span>
+</code></pre>
+<div><span>1</span><br><span>2</span><br><span>3</span><br><span>4</span><br><span>5</span><br><span>6</span><br><span>7</span><br><span>8</span><br><span>9</span><br><span>10</span><br><span>11</span><br><span>12</span><br><span>13</span><br><span>14</span><br><span>15</span><br><span>16</span><br><span>17</span><br><span>18</span><br><span>19</span><br><span>20</span><br><span>21</span><br><span>22</span><br><span>23</span><br><span>24</span><br><span>25</span><br><span>26</span><br><span>27</span><br><span>28</span><br><span>29</span><br></div></div><div><pre><code><span>// api/nav.js 这是对axios封装以后，调用接口的函数</span>
+<span>import</span> axios <span>from</span> <span>'./axios'</span>
+<span>// 权限管理，请求导航栏列表</span>
+<span>export</span> <span>default</span> <span>function</span> <span>getNav</span><span>(</span><span>)</span><span>{</span>
+  <span>return</span> axios<span>.</span><span>get</span><span>(</span><span>'/api/avaCommander/getNavList'</span><span>)</span>
+<span>}</span>
+</code></pre>
+<div><span>1</span><br><span>2</span><br><span>3</span><br><span>4</span><br><span>5</span><br><span>6</span><br></div></div><h2 id="axios二次封装"> axios二次封装</h2>
+<div><pre><code><span>// 方法一</span>
+<span>// request.js</span>
+<span>import</span> axios <span>from</span> <span>'axios'</span>
+<span>// 创建一个新的axios实例</span>
+<span>const</span> service <span>=</span> axios<span>.</span><span>create</span><span>(</span><span>{</span>
+  timeout<span>:</span> <span>30000</span> <span>// 请求超时时间</span>
+<span>}</span><span>)</span>
+
+service<span>.</span>interceptors<span>.</span>request<span>.</span><span>use</span><span>(</span>
+  <span>config</span><span>=></span><span>{</span>
+    <span>return</span> config
+  <span>}</span><span>,</span>
+  <span>error</span><span>=></span><span>{</span>
+    <span>return</span> Promise<span>.</span><span>reject</span><span>(</span>error<span>)</span>
+  <span>}</span>
+<span>)</span>
+
+service<span>.</span>interceptors<span>.</span>response<span>.</span><span>use</span><span>(</span>
+  <span>response</span><span>=></span><span>{</span>
+    <span>return</span> response
+  <span>}</span><span>,</span>
+  <span>error</span><span>=></span><span>{</span>
+    <span>return</span> Promise<span>.</span><span>reject</span><span>(</span>error<span>.</span>response<span>)</span>
+  <span>}</span>
+<span>)</span>
+<span>export</span> <span>default</span> service
+
+<span>// api文件</span>
+<span>import</span> request <span>from</span> <span>'./request'</span>
+
+<span>export</span> <span>function</span> <span>getResult</span><span>(</span><span>data</span><span>)</span><span>{</span>
+  <span>return</span> <span>request</span><span>(</span><span>{</span>
+    url<span>:</span> <span>'/api/avaCommander/getResultList'</span><span>,</span>
+    method<span>:</span> <span>'get'</span><span>,</span>
+    data<span>,</span>
+  <span>}</span><span>)</span>
+<span>}</span>
+</code></pre>
+<div><span>1</span><br><span>2</span><br><span>3</span><br><span>4</span><br><span>5</span><br><span>6</span><br><span>7</span><br><span>8</span><br><span>9</span><br><span>10</span><br><span>11</span><br><span>12</span><br><span>13</span><br><span>14</span><br><span>15</span><br><span>16</span><br><span>17</span><br><span>18</span><br><span>19</span><br><span>20</span><br><span>21</span><br><span>22</span><br><span>23</span><br><span>24</span><br><span>25</span><br><span>26</span><br><span>27</span><br><span>28</span><br><span>29</span><br><span>30</span><br><span>31</span><br><span>32</span><br><span>33</span><br><span>34</span><br><span>35</span><br><span>36</span><br><span>37</span><br></div></div><div><pre><code><span>// 方法二</span>
+<span>// axios.js</span>
+<span>import</span> axios <span>from</span> <span>'axios'</span>
+<span>// 使用qs库编码数据</span>
+<span>import</span> qs <span>from</span> <span>'qs'</span>
+ 
+axios<span>.</span>defaults<span>.</span>timeout <span>=</span> <span>5000</span>
+axios<span>.</span>defaults<span>.</span>headers<span>.</span>post<span>[</span><span>'Content-Type'</span><span>]</span> <span>=</span> <span>'application/x-www-form-urlencoded;charset=utf-8'</span>
+ 
+<span>//请求拦截器</span>
+axios<span>.</span>interceptors<span>.</span>request<span>.</span><span>use</span><span>(</span>
+    <span>config</span> <span>=></span> <span>{</span>
+        <span>return</span> config
+    <span>}</span><span>,</span>
+    <span>error</span> <span>=></span> <span>{</span>
+        <span>return</span> Promise<span>.</span><span>reject</span><span>(</span>error<span>)</span>
+    <span>}</span>
+<span>)</span>
+<span>//响应拦截器即异常处理</span>
+axios<span>.</span>interceptors<span>.</span>response<span>.</span><span>use</span><span>(</span><span>response</span> <span>=></span> <span>{</span>
+    <span>return</span> response
+<span>}</span><span>,</span> <span>err</span> <span>=></span> <span>{</span>
+    <span>return</span> Promise<span>.</span><span>resolve</span><span>(</span>err<span>.</span>response<span>)</span>
+<span>}</span><span>)</span>
+ 
+<span>export</span> <span>default</span> <span>{</span>
+    <span>get</span><span>(</span>url<span>,</span> params <span>=</span> <span>{</span><span>}</span><span>)</span> <span>{</span>
+        <span>return</span> <span>new</span> <span>Promise</span><span>(</span><span>(</span><span>resolve<span>,</span> reject</span><span>)</span> <span>=></span> <span>{</span>
+            axios<span>.</span><span>get</span><span>(</span>url<span>,</span> <span>{</span>
+                params<span>:</span> params
+            <span>}</span><span>)</span><span>.</span><span>then</span><span>(</span><span>res</span> <span>=></span> <span>{</span>
+                <span>resolve</span><span>(</span>res<span>)</span>
+            <span>}</span><span>)</span><span>.</span><span>catch</span><span>(</span><span>err</span> <span>=></span> <span>{</span>
+                <span>reject</span><span>(</span>err<span>)</span>
+            <span>}</span><span>)</span>
+        <span>}</span><span>)</span>
+    <span>}</span><span>,</span>
+ 
+    <span>post</span><span>(</span><span>url<span>,</span> params <span>=</span> <span>{</span><span>}</span></span><span>)</span> <span>{</span>
+        <span>return</span> <span>new</span> <span>Promise</span><span>(</span><span>(</span><span>resolve<span>,</span> reject</span><span>)</span> <span>=></span> <span>{</span>
+            axios<span>.</span><span>post</span><span>(</span>url<span>,</span> qs<span>.</span><span>stringify</span><span>(</span>params<span>)</span><span>)</span>
+                <span>.</span><span>then</span><span>(</span><span>response</span> <span>=></span> <span>{</span>
+                    <span>resolve</span><span>(</span>response<span>)</span>
+                <span>}</span><span>)</span><span>.</span><span>catch</span><span>(</span><span>err</span> <span>=></span> <span>{</span>
+                    <span>reject</span><span>(</span>err<span>)</span>
+                <span>}</span><span>)</span>
+        <span>}</span><span>)</span>
+    <span>}</span>
+<span>}</span>
+
+<span>// api文件</span>
+<span>import</span> axios <span>from</span> <span>'./axios'</span>
+
+<span>export</span> <span>default</span> <span>function</span> <span>getNav</span><span>(</span><span>)</span><span>{</span>
+  <span>return</span> axios<span>.</span><span>get</span><span>(</span><span>'/api/avaCommander/getNavList'</span><span>)</span>
+<span>}</span>
+</code></pre>
+<div><span>1</span><br><span>2</span><br><span>3</span><br><span>4</span><br><span>5</span><br><span>6</span><br><span>7</span><br><span>8</span><br><span>9</span><br><span>10</span><br><span>11</span><br><span>12</span><br><span>13</span><br><span>14</span><br><span>15</span><br><span>16</span><br><span>17</span><br><span>18</span><br><span>19</span><br><span>20</span><br><span>21</span><br><span>22</span><br><span>23</span><br><span>24</span><br><span>25</span><br><span>26</span><br><span>27</span><br><span>28</span><br><span>29</span><br><span>30</span><br><span>31</span><br><span>32</span><br><span>33</span><br><span>34</span><br><span>35</span><br><span>36</span><br><span>37</span><br><span>38</span><br><span>39</span><br><span>40</span><br><span>41</span><br><span>42</span><br><span>43</span><br><span>44</span><br><span>45</span><br><span>46</span><br><span>47</span><br><span>48</span><br><span>49</span><br><span>50</span><br><span>51</span><br><span>52</span><br><span>53</span><br><span>54</span><br><span>55</span><br><span>56</span><br></div></div><h2 id="vue实例property"> vue实例property</h2>
+<blockquote>
+<p>除了数据 property，Vue 实例还暴露了一些有用的实例 property 与方法。它们都有前缀 <code>$</code>，以便与用户定义的 property 区分开来
+官方文档中的这句话，是说给vue实例（比如一个组件，一个vue文件）提供了一些<code>$</code>开头的方法，可以调用这些方法做一些事情。
+比如：</p>
+</blockquote>
+<div><pre><code><span>// 这是一个vue实例</span>
+<span>var</span> data <span>=</span> <span>{</span> a<span>:</span> <span>1</span> <span>}</span>
+<span>var</span> vm <span>=</span> <span>new</span> <span>Vue</span><span>(</span><span>{</span>
+  el<span>:</span> <span>'#example'</span><span>,</span>
+  data<span>:</span> data
+<span>}</span><span>)</span>
+<span>// 调用 property</span>
+vm<span>.</span>$data <span>===</span> data <span>// => true</span>
+vm<span>.</span>$el <span>===</span> document<span>.</span><span>getElementById</span><span>(</span><span>'example'</span><span>)</span> <span>// => true</span>
+
+<span>// 调用 $watch 方法</span>
+vm<span>.</span><span>$watch</span><span>(</span><span>'a'</span><span>,</span> <span>function</span> <span>(</span><span>newValue<span>,</span> oldValue</span><span>)</span> <span>{</span>
+  <span>// 这个回调将在 `vm.a` 改变后调用</span>
+<span>}</span><span>)</span>
+</code></pre>
+<div><span>1</span><br><span>2</span><br><span>3</span><br><span>4</span><br><span>5</span><br><span>6</span><br><span>7</span><br><span>8</span><br><span>9</span><br><span>10</span><br><span>11</span><br><span>12</span><br><span>13</span><br><span>14</span><br></div></div><h2 id="vue实例生命周期钩子"> vue实例生命周期钩子</h2>
+<blockquote>
+<p>每个 Vue 实例在被创建时都要经过一系列的初始化过程——例如，需要设置数据监听、编译模板、将实例挂载到 DOM 并在数据变化时更新 DOM 等。同时在这个过程中也会运行一些叫做生命周期钩子的函数，这给了用户在不同阶段添加自己的代码的机会.
+最初就只有一个vue实例，App.vue，挂载到了index.html页面上。
+目前学习到的钩子函数有：</p>
+</blockquote>
+<ol>
+<li>created()</li>
+<li>mounted()</li>
+</ol>
+<h2 id="模板语法"> 模板语法</h2>
+<p>插值</p>
+<ol>
+<li>Mustache”语法 {{message}} 与 v-html
+双大括号会将数据解释为普通文本，而非 HTML 代码。为了输出真正的 HTML，你需要使用 v-html 指令</li>
+</ol>
+<div><pre><code>&lt;p>{{message}}&lt;/p>
+&lt;p v-html="message">&lt;/p>
+</code></pre>
+<div><span>1</span><br><span>2</span><br></div></div><ol start="2">
+<li>
+<p>html属性
+使用 v-bind:属性名 来给元素绑定属性，简写为 :属性名</p>
+</li>
+<li>
+<p>JavaScript表达式
+模板中也可以使用单句的JavaScript表达式。表达式中可以访问全局变量的一个白名单，如 Math 和 Date</p>
+</li>
+</ol>
+<p>指令</p>
+<blockquote>
+<p>指令 (Directives) 是带有 v- 前缀的特殊 attribute。指令 attribute 的值预期是单个 JavaScript 表达式，指令的职责是，当表达式的值改变时，将其产生的连带影响，响应式地作用于 DOM。</p>
+</blockquote>
+<ol>
+<li>v-if=&quot;seen&quot;</li>
+<li>v-bind:href=&quot;url&quot;</li>
+<li>v-on:click=&quot;do&quot;</li>
+</ol>
+<h2 id="计算属性"> 计算属性</h2>
+<div><pre><code><span><span><span>&lt;</span>div</span> <span>id</span><span><span>=</span><span>"</span>example<span>"</span></span><span>></span></span>
+  <span><span><span>&lt;</span>p</span><span>></span></span>Original message: "{{ message }}"<span><span><span>&lt;/</span>p</span><span>></span></span>
+  <span><span><span>&lt;</span>p</span><span>></span></span>Computed reversed message: "{{ reversedMessage }}"<span><span><span>&lt;/</span>p</span><span>></span></span>
+<span><span><span>&lt;/</span>div</span><span>></span></span>
+</code></pre>
+<div><span>1</span><br><span>2</span><br><span>3</span><br><span>4</span><br></div></div><div><pre><code>data<span>:</span> <span>{</span>
+  message<span>:</span> <span>'hello'</span>
+<span>}</span>
+computed<span>:</span> <span>{</span>
+  <span>reversedMessage</span><span>:</span> <span>function</span> <span>(</span><span>)</span> <span>{</span>
+      <span>// `this` 指向 vm 实例</span>
+      <span>return</span> <span>this</span><span>.</span>message<span>.</span><span>split</span><span>(</span><span>''</span><span>)</span><span>.</span><span>reverse</span><span>(</span><span>)</span><span>.</span><span>join</span><span>(</span><span>''</span><span>)</span>
+    <span>}</span>
+<span>}</span>
+</code></pre>
+<div><span>1</span><br><span>2</span><br><span>3</span><br><span>4</span><br><span>5</span><br><span>6</span><br><span>7</span><br><span>8</span><br><span>9</span><br></div></div><h2 id="侦听器"> 侦听器</h2>
+<p>和计算属性差不多，利用 watch 来观察数据变化，并响应。</p>
+<div><pre><code>data<span>:</span> <span>{</span>
+  question<span>:</span> <span>''</span>
+<span>}</span>
+watch<span>:</span> <span>{</span>
+    <span>// 如果 `question` 发生改变，这个函数就会运行</span>
+    <span>question</span><span>:</span> <span>function</span> <span>(</span><span>newQuestion<span>,</span> oldQuestion</span><span>)</span> <span>{</span>
+      <span>this</span><span>.</span>answer <span>=</span> <span>'Waiting for you to stop typing...'</span>
+    <span>}</span>
+  <span>}</span><span>,</span>
+</code></pre>
+<div><span>1</span><br><span>2</span><br><span>3</span><br><span>4</span><br><span>5</span><br><span>6</span><br><span>7</span><br><span>8</span><br><span>9</span><br></div></div><h2 id="class和style绑定"> class和style绑定</h2>
+<blockquote>
+<p>在将 v-bind 用于 class 和 style 时，Vue.js 做了专门的增强。表达式结果的类型除了字符串之外，还可以是对象或数组。
+也就是说，不仅可以绑定一个固定的class，还可以通过绑定一个对象，来切换class；也可以绑定一个数组，添加多个class。
+绑定style和class同。</p>
+</blockquote>
+<p>对象方式一：</p>
+<div><pre><code><span><span><span>&lt;</span>div</span> <span><span>v-bind:</span>class</span><span><span>=</span><span>"</span>classObject<span>"</span></span><span>></span></span><span><span><span>&lt;/</span>div</span><span>></span></span>
+</code></pre>
+<div><span>1</span><br></div></div><div><pre><code>data<span>:</span> <span>{</span>
+  classObject<span>:</span> <span>{</span>
+    active<span>:</span> <span>true</span><span>,</span>
+    <span>'text-danger'</span><span>:</span> <span>false</span>
+  <span>}</span>
+<span>}</span>
+</code></pre>
+<div><span>1</span><br><span>2</span><br><span>3</span><br><span>4</span><br><span>5</span><br><span>6</span><br></div></div><p>对象方式二：</p>
+<div><pre><code><span><span><span>&lt;</span>div</span> <span><span>v-bind:</span>class</span><span><span>=</span><span>"</span>classObject<span>"</span></span><span>></span></span><span><span><span>&lt;/</span>div</span><span>></span></span>
+</code></pre>
+<div><span>1</span><br></div></div><div><pre><code>data<span>:</span> <span>{</span>
+  isActive<span>:</span> <span>true</span><span>,</span>
+  error<span>:</span> <span>null</span>
+<span>}</span><span>,</span>
+computed<span>:</span> <span>{</span>
+  <span>classObject</span><span>:</span> <span>function</span> <span>(</span><span>)</span> <span>{</span>
+    <span>return</span> <span>{</span>
+      active<span>:</span> <span>this</span><span>.</span>isActive <span>&amp;&amp;</span> <span>!</span><span>this</span><span>.</span>error<span>,</span>
+      <span>'text-danger'</span><span>:</span> <span>this</span><span>.</span>error <span>&amp;&amp;</span> <span>this</span><span>.</span>error<span>.</span>type <span>===</span> <span>'fatal'</span>
+    <span>}</span>
+  <span>}</span>
+<span>}</span>
+</code></pre>
+<div><span>1</span><br><span>2</span><br><span>3</span><br><span>4</span><br><span>5</span><br><span>6</span><br><span>7</span><br><span>8</span><br><span>9</span><br><span>10</span><br><span>11</span><br><span>12</span><br></div></div><p>数组方式一：</p>
+<div><pre><code><span><span><span>&lt;</span>div</span> <span><span>v-bind:</span>class</span><span><span>=</span><span>"</span>[activeClass, errorClass]<span>"</span></span><span>></span></span><span><span><span>&lt;/</span>div</span><span>></span></span>
+</code></pre>
+<div><span>1</span><br></div></div><div><pre><code>data<span>:</span> <span>{</span>
+  activeClass<span>:</span> <span>'active'</span><span>,</span>
+  errorClass<span>:</span> <span>'text-danger'</span>
+<span>}</span>
+</code></pre>
+<div><span>1</span><br><span>2</span><br><span>3</span><br><span>4</span><br></div></div><h2 id="条件渲染"> 条件渲染</h2>
+<p>v-if和v-show
+区别：v-if是真实的渲染和不渲染，v-show只是切换显示和不显示</p>
+<div><pre><code><span><span><span>&lt;</span>p</span> <span>v-if</span><span><span>=</span><span>"</span>seen<span>"</span></span><span>></span></span>vue<span><span><span>&lt;/</span>p</span><span>></span></span> seen为true时，该元素会渲染在页面上。
+<span><span><span>&lt;</span>p</span> <span>v-else</span><span>></span></span>react<span><span><span>&lt;/</span>p</span><span>></span></span> 若还有v-else，则seen为false时渲染这个。
+</code></pre>
+<div><span>1</span><br><span>2</span><br></div></div><h2 id="v-for列表渲染"> v-for列表渲染</h2>
+<blockquote>
+<p>在组件上使用v-for时，key是必须的。任何数据都不会被自动传递到组件里，因为组件有自己独立的作用域。为了把迭代数据传递到组件里，我们要使用 prop</p>
+</blockquote>
+<h2 id="事件处理"> 事件处理</h2>
+<p>主要记住一些按键修饰符</p>
+<div><pre><code>&lt;input v-on:keyup.enter="submit">
+.enter
+.tab
+.delete (捕获“删除”和“退格”键)
+.esc
+.space
+.up
+.down
+.left
+.right
+</code></pre>
+<div><span>1</span><br><span>2</span><br><span>3</span><br><span>4</span><br><span>5</span><br><span>6</span><br><span>7</span><br><span>8</span><br><span>9</span><br><span>10</span><br></div></div><h2 id="表单输入绑定"> 表单输入绑定</h2>
+<blockquote>
+<p>你可以用 v-model 指令在表单 <code>&lt;input&gt;</code>、<code>&lt;textarea&gt;</code> 及 <code>&lt;select&gt;</code> 元素上创建双向数据绑定。
+v-model 在内部为不同的输入元素使用不同的 property 并抛出不同的事件：
+text 和 textarea 元素使用 value property 和 input 事件；
+checkbox 和 radio 使用 checked property 和 change 事件；
+select 字段将 value 作为 prop 并将 change 作为事件。</p>
+</blockquote>
+<p>在文本区域插值 (<code>&lt;textarea&gt;{{text}}&lt;/textarea&gt;</code>) 并不会生效，应用 v-model 来代替。</p>
+<p>如果想自动将用户的输入值转为数值类型，可以给 v-model 添加 number 修饰符：</p>
+<div><pre><code><span><span><span>&lt;</span>input</span> <span>v-model.number</span><span><span>=</span><span>"</span>age<span>"</span></span> <span>type</span><span><span>=</span><span>"</span>number<span>"</span></span><span>></span></span>
+</code></pre>
+<div><span>1</span><br></div></div><p>如果要自动过滤用户输入的首尾空白字符，可以给 v-model 添加 trim 修饰符：</p>
+<div><pre><code><span><span><span>&lt;</span>input</span> <span>v-model.trim</span><span><span>=</span><span>"</span>msg<span>"</span></span><span>></span></span>
+</code></pre>
+<div><span>1</span><br></div></div><h2 id="组件通信"> 组件通信</h2>
+<blockquote>
+<p>一个组件的 data 选项必须是一个函数，因此每个实例可以维护一份被返回对象的独立的拷贝</p>
+</blockquote>
+<ol>
+<li>父组件向子组件传递数据，利用到了prop属性</li>
+</ol>
+<div><pre><code><span>// prop 有两种方式，字符串数组和对象</span>
+props<span>:</span> <span>[</span><span>'title'</span><span>,</span> <span>'islike'</span><span>,</span> <span>'object'</span><span>]</span>
+
+props<span>:</span> <span>{</span>
+  title<span>:</span> String<span>,</span>
+  islike<span>:</span> Boolean<span>,</span>
+  object<span>:</span> Object
+<span>}</span>
+</code></pre>
+<div><span>1</span><br><span>2</span><br><span>3</span><br><span>4</span><br><span>5</span><br><span>6</span><br><span>7</span><br><span>8</span><br></div></div><blockquote>
+<p>如果你想要将一个对象的所有 property 都作为 prop 传入，你可以使用不带参数的 v-bind 取代 v-bind:prop-name，v-bind=&quot;&quot;</p>
+</blockquote>
+<ol start="2">
+<li>子组件使用内建的 $emit 方法触发父组件的事件</li>
+</ol>
+<blockquote>
+<p>v-on 事件监听器在 DOM 模板中会被自动转换为全小写 (因为 HTML 是大小写不敏感的)，所以 v-on:myEvent 将会变成 v-on:myevent——导致 myEvent 不可能被监听到。
+因此，我们推荐你始终使用 kebab-case 的事件名。</p>
+</blockquote>
+<div><pre><code>// 父组件
+<span><span><span>&lt;</span>div</span><span>></span></span>
+    <span><span><span>&lt;</span>train-city</span> <span><span>v-on:</span>some-event</span><span><span>=</span><span>"</span>doSomeThing<span>"</span></span> <span><span>v-bind:</span>data-to-son</span><span><span>=</span><span>"</span>someData<span>"</span></span><span>></span></span><span><span><span>&lt;/</span>train-city</span><span>></span></span>
+<span><span><span>&lt;/</span>div</span><span>></span></span>
+
+// 子组件
+<span><span><span>&lt;</span>div</span><span>></span></span>
+    <span><span><span>&lt;</span>p</span><span>></span></span>父组件传给子组件的数据:{{data-to-son}}<span><span><span>&lt;/</span>p</span><span>></span></span> 
+    <span><span><span>&lt;</span>button</span> <span><span>v-on:</span>click</span><span><span>=</span><span>"</span>$emit(<span>'</span>some-event<span>'</span>, data)<span>"</span></span><span>></span></span>点击触发父组件someEvent事件,并且把data传递给父组件的处理函数<span><span><span>&lt;/</span>button</span><span>></span></span>
+<span><span><span>&lt;/</span>div</span><span>></span></span>
+</code></pre>
+<div><span>1</span><br><span>2</span><br><span>3</span><br><span>4</span><br><span>5</span><br><span>6</span><br><span>7</span><br><span>8</span><br><span>9</span><br><span>10</span><br></div></div><ol start="3">
+<li>数据在父子组件之间双向绑定 .sync</li>
+</ol>
+<blockquote>
+<p>在有些情况下，我们可能需要对一个 prop 进行“双向绑定”。
+不幸的是，真正的双向绑定会带来维护上的问题，因为子组件可以变更父组件，且在父组件和子组件两侧都没有明显的变更来源。
+这也是为什么我们推荐以 update:myPropName 的模式触发事件取而代之...
+为了方便起见，我们为这种模式提供一个缩写，即 .sync 修饰符：</p>
+</blockquote>
+<div><pre><code>把title传递给子组件的同时，监听子组件对title的改变
+<span><span><span>&lt;</span>text-document</span> <span><span>v-bind:</span>title.sync</span><span><span>=</span><span>"</span>doc.title<span>"</span></span><span>></span></span><span><span><span>&lt;/</span>text-document</span><span>></span></span>
+</code></pre>
+<div><span>1</span><br><span>2</span><br></div></div><h2 id="插槽"> 插槽</h2>
+<blockquote>
+<p>在 2.6.0 中，我们为具名插槽和作用域插槽引入了一个新的统一的语法 (即 v-slot 指令)。它取代了 slot 和 slot-scope 这两个目前已被废弃但未被移除且仍在文档中的 attribute。
+注意 v-slot 只能添加在 <code>&lt;template&gt;</code> 上 (只有一种例外情况)</p>
+</blockquote>
+<p>插槽就是一个占位元素。在父组件中使用子组件时，子组件开关标签之间的内容是不会展示到子组件页面上的，除非子组件在内部提供了插槽。
+如果子组件中的slot标签有内容，那么会自动展示在子组件页面上。
+如果父组件中使用了子组件，并且提供了内容，那么会覆盖掉子组件插槽的内容。</p>
+<div><pre><code>// 子组件 <span><span><span>&lt;</span>base-layout</span><span>></span></span>
+<span><span><span>&lt;</span>template</span><span>></span></span>
+  <span><span><span>&lt;</span>header</span><span>></span></span>
+    <span><span><span>&lt;</span>slot</span> <span>name</span><span><span>=</span><span>"</span>header<span>"</span></span><span>></span></span><span><span><span>&lt;/</span>slot</span><span>></span></span> 具名插槽
+  <span><span><span>&lt;/</span>header</span><span>></span></span>
+  <span><span><span>&lt;</span>main</span><span>></span></span>
+    <span><span><span>&lt;</span>slot</span><span>></span></span><span><span><span>&lt;/</span>slot</span><span>></span></span> 匿名插槽
+  <span><span><span>&lt;/</span>main</span><span>></span></span>
+  <span><span><span>&lt;</span>footer</span><span>></span></span>
+    <span><span><span>&lt;</span>slot</span> <span>name</span><span><span>=</span><span>"</span>footer<span>"</span></span><span>></span></span><span><span><span>&lt;/</span>slot</span><span>></span></span>
+  <span><span><span>&lt;/</span>footer</span><span>></span></span>
+<span><span><span>&lt;/</span>template</span><span>></span></span>
+
+// 父组件
+<span><span><span>&lt;</span>template</span><span>></span></span>
+  <span><span><span>&lt;</span>base-layout</span><span>></span></span>
+    <span><span><span>&lt;</span>template</span> <span><span>v-slot:</span>header</span><span>></span></span>
+      <span><span><span>&lt;</span>h1</span><span>></span></span>This is header<span><span><span>&lt;/</span>h1</span><span>></span></span>
+    <span><span><span>&lt;/</span>template</span><span>></span></span>
+
+    <span><span><span>&lt;</span>template</span> <span><span>v-slot:</span>default</span><span>></span></span>
+    <span><span><span>&lt;</span>p</span><span>></span></span>A paragraph for the main content.<span><span><span>&lt;/</span>p</span><span>></span></span>
+    <span><span><span>&lt;/</span>template</span><span>></span></span>
+
+    <span><span><span>&lt;</span>template</span> <span><span>v-slot:</span>footer</span><span>></span></span>
+      <span><span><span>&lt;</span>p</span><span>></span></span>this is contact info<span><span><span>&lt;/</span>p</span><span>></span></span>
+    <span><span><span>&lt;/</span>template</span><span>></span></span>
+  <span><span><span>&lt;/</span>base-laout</span><span>></span></span>
+<span><span><span>&lt;</span>template</span><span>></span></span>
+
+// 渲染结果
+<span><span><span>&lt;</span>div</span><span>></span></span>
+  <span><span><span>&lt;</span>header</span><span>></span></span>
+    <span><span><span>&lt;</span>h1</span><span>></span></span>This is header<span><span><span>&lt;/</span>h1</span><span>></span></span>
+  <span><span><span>&lt;/</span>header</span><span>></span></span>
+  <span><span><span>&lt;</span>main</span><span>></span></span>
+    <span><span><span>&lt;</span>p</span><span>></span></span>A paragraph for the main content.<span><span><span>&lt;/</span>p</span><span>></span></span>
+  <span><span><span>&lt;/</span>main</span><span>></span></span>
+  <span><span><span>&lt;</span>footer</span><span>></span></span>
+    <span><span><span>&lt;</span>p</span><span>></span></span>this is contact info<span><span><span>&lt;/</span>p</span><span>></span></span>
+  <span><span><span>&lt;/</span>footer</span><span>></span></span>
+<span><span><span>&lt;/</span>div</span><span>></span></span>
+</code></pre>
+<div><span>1</span><br><span>2</span><br><span>3</span><br><span>4</span><br><span>5</span><br><span>6</span><br><span>7</span><br><span>8</span><br><span>9</span><br><span>10</span><br><span>11</span><br><span>12</span><br><span>13</span><br><span>14</span><br><span>15</span><br><span>16</span><br><span>17</span><br><span>18</span><br><span>19</span><br><span>20</span><br><span>21</span><br><span>22</span><br><span>23</span><br><span>24</span><br><span>25</span><br><span>26</span><br><span>27</span><br><span>28</span><br><span>29</span><br><span>30</span><br><span>31</span><br><span>32</span><br><span>33</span><br><span>34</span><br><span>35</span><br><span>36</span><br><span>37</span><br><span>38</span><br><span>39</span><br><span>40</span><br><span>41</span><br><span>42</span><br></div></div><p><a href="https://cn.vuejs.org/v2/guide/components-slots.html#%E4%BD%9C%E7%94%A8%E5%9F%9F%E6%8F%92%E6%A7%BD" target="_blank" rel="noopener noreferrer">作用域插槽</a></p>
+<blockquote>
+<p>有时让插槽内容能够访问子组件中才有的数据是很有用的</p>
+</blockquote>
+<p>有些数据是在子组件中渲染的，那么父组件默认是访问不到那些数据的。可以通过把这些数据绑定在插槽上，这样当父组件使用子组件后，使用插槽时就可以拿到那些数据了。绑定在 <code>&lt;slot&gt;</code> 元素上的 attribute 被称为插槽 prop。</p>
+<div><pre><code>// 子组件 <span><span><span>&lt;</span>current-user</span><span>></span></span>
+<span><span><span>&lt;</span>span</span><span>></span></span>
+  <span><span><span>&lt;</span>slot</span> <span><span>v-bind:</span>user</span><span><span>=</span><span>"</span>user<span>"</span></span><span>></span></span>
+    {{ user.lastName }}
+  <span><span><span>&lt;/</span>slot</span><span>></span></span>
+<span><span><span>&lt;/</span>span</span><span>></span></span>
+
+// 父组件,这里将包含所有插槽 prop 的对象命名为 slotProps
+<span><span><span>&lt;</span>current-user</span><span>></span></span>
+  <span><span><span>&lt;</span>template</span> <span><span>v-slot:</span>default</span><span><span>=</span><span>"</span>slotProps<span>"</span></span><span>></span></span>
+    {{ slotProps.user.firstName }}
+  <span><span><span>&lt;/</span>template</span><span>></span></span>
+<span><span><span>&lt;/</span>current-user</span><span>></span></span>
+
+// 解构插槽prop
+<span><span><span>&lt;</span>current-user</span><span>></span></span>
+  <span><span><span>&lt;</span>template</span> <span><span>v-slot:</span>default</span><span><span>=</span><span>"</span>{ user }<span>"</span></span><span>></span></span>
+    {{ user.firstName }}
+  <span><span><span>&lt;/</span>template</span><span>></span></span>
+<span><span><span>&lt;/</span>current-user</span><span>></span></span>
+</code></pre>
+<div><span>1</span><br><span>2</span><br><span>3</span><br><span>4</span><br><span>5</span><br><span>6</span><br><span>7</span><br><span>8</span><br><span>9</span><br><span>10</span><br><span>11</span><br><span>12</span><br><span>13</span><br><span>14</span><br><span>15</span><br><span>16</span><br><span>17</span><br><span>18</span><br><span>19</span><br><span>20</span><br></div></div><h2 id="ref属性"> ref属性</h2>
+<blockquote>
+<p>尽管存在 prop 和事件，有的时候你仍可能需要在 JavaScript 里直接访问一个子组件。为了达到这个目的，你可以通过 ref 这个 attribute 为子组件赋予一个 ID 引用</p>
+</blockquote>
+<div><pre><code><span><span><span>&lt;</span>base-input</span> <span>ref</span><span><span>=</span><span>"</span>usernameInput<span>"</span></span><span>></span></span><span><span><span>&lt;/</span>base-input</span><span>></span></span>`
+
+现在可以通过 this.$refs.usernameInput 来访问这个 <span><span><span>&lt;</span>base-input</span><span>></span></span> 实例
+
+</code></pre>
+<div><span>1</span><br><span>2</span><br><span>3</span><br><span>4</span><br></div></div>]]></content:encoded>
+    </item>
+  </channel>
+</rss>
